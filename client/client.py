@@ -1,4 +1,4 @@
-from RH_client import RequestHandler
+from packages.RH_client import RequestHandler
 from keywords import *
 
 
