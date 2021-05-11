@@ -2,7 +2,7 @@ import sys
 from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, \
     QTextBrowser, QPushButton, QScrollArea, QApplication, QMainWindow
 
-from singleTweet import SingleTweetBox
+from SingleTweet import SingleTweetBox
 from ManyTweet import ManyTweetBox
 
 
