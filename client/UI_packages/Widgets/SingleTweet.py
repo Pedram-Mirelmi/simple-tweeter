@@ -65,14 +65,7 @@ class SingleTweetBox(QScrollArea):
         self.box = SingleTweetContainer()
         self.setWidget(self.box)
 
-
-class Window(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.grid = QGridLayout(self)
-        self.grid.addWidget(SingleTweetBox(), 1, 1)
-        self.grid.addWidget(SingleTweetBox(), 2, 1)
-
+        
 
 if __name__ == "__main__":
     class Window(QWidget):
