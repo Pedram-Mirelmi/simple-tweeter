@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, \
 
 class SingleTweetContainer(QWidget):
     def __init__(self, mother_area: QWidget = None):
-        super().__init__()
+        super().__init__(mother_area)
         self.setGeometry(QtCore.QRect(0, 0, 448, 248))
         self.setObjectName("scrollAreaWidgetContents")
         self.gridLayout = QGridLayout(self)
@@ -62,10 +62,17 @@ class SingleTweetBox(QScrollArea):
         self.setMaximumSize(QtCore.QSize(450, 250))
         self.setWidgetResizable(True)
         self.setObjectName("tweet_box")
-        self.box = SingleTweetContainer()
+        self.box = SingleTweetContainer(self)
         self.setWidget(self.box)
 
-        
+
+class Window(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.grid = QGridLayout(self)
+        self.grid.addWidget(SingleTweetBox(), 1, 1)
+        self.grid.addWidget(SingleTweetBox(), 2, 1)
+
 
 if __name__ == "__main__":
     class Window(QWidget):
@@ -74,8 +81,8 @@ if __name__ == "__main__":
             self.grid = QGridLayout(self)
             self.grid.addWidget(SingleTweetBox(), 1, 1)
             self.grid.addWidget(SingleTweetBox(), 2, 1)
-            
-            
+
+
     import sys
 
     app = QApplication(sys.argv)
