@@ -21,6 +21,7 @@ class ManyTweetBox(QScrollArea):
         self.grid.addWidget(self.t_container)
         self.setWidget(self.t_container)
 
+
 if __name__ == "__main__":
     import sys
 
