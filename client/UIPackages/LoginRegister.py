@@ -1,11 +1,8 @@
-import sys
-
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QWidget, QPushButton, \
     QTabWidget, QGridLayout, QLabel, QLineEdit, QApplication
 
-login_button_func: callable
-register_button_func: callable
+import sys
 
 
 class BaseLogRegWidget(QTabWidget):
@@ -74,6 +71,9 @@ class BaseLogRegWidget(QTabWidget):
 
 
 class LogRegWidget(BaseLogRegWidget):
+    login_button_func: callable
+    register_button_func: callable
+
     def __init__(self, mother_area: QWidget = None):
         super().__init__(mother_area)
         self.initiateLogin()
@@ -82,16 +82,15 @@ class LogRegWidget(BaseLogRegWidget):
     def initiateRegister(self):
         self.register_button.clicked.connect(
             lambda: self.register_button_func(self.reg_user_field.text(),
-                                         self.reg_name_field.text(),
-                                         self.reg_pass_field.text())
+                                              self.reg_name_field.text(),
+                                              self.reg_pass_field.text())
         )
 
     def initiateLogin(self):
         self.login_button.clicked.connect(
             lambda: self.login_button_func(self.log_user_field.text(),
-                                      self.log_pass_field.text())
+                                           self.log_pass_field.text())
         )
-
 
 
 if __name__ == "__main__":
