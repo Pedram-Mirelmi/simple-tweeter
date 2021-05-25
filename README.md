@@ -9,4 +9,4 @@ The client terminal version has these features:
 Recently i've added a UI written by PyQT5, which the comment feature doesn't work yet. but the UI design has it.
 
 ## server
-The server uses socket programming to comunicate with the client. also i used threading so it can talk to multiple clients at the moment and if one of them craches servers stay running.
+The server uses socket programming to comunicate with the client. also i used threading so it can talk to multiple clients at the moment and if one of them craches servers stays running.
