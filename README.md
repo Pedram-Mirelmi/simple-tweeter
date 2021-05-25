@@ -10,4 +10,4 @@ Recently i've added a UI written by PyQT5, which the comment feature doesn't wor
 
 ## server
 The server uses socket programming to comunicate with the client.
-- Also i used threading so it can talk to multiple clients at the moment and if one of them crashes servers stays running. 
+<br /> Also i used threading so it can talk to multiple clients at the moment and if one of them crashes servers stays running. 
