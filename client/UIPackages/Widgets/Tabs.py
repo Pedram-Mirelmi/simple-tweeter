@@ -1,7 +1,7 @@
 from typing import Union
 
 from PyQt5 import QtCore, QtGui
-from PyQt5.QtWidgets import QPushButton, QWidget, QLineEdit, QListView, QLabel, QApplication, QGridLayout
+from PyQt5.QtWidgets import QPushButton, QWidget, QLineEdit, QListView, QLabel, QScrollArea, QGridLayout
 
 import sys
 
@@ -12,9 +12,10 @@ from client.BackendPackages import ClientKeywords
 from .ManyTweet import ManyTweetBox
 
 
-class SearchTab(QWidget):
+class SearchTab(QScrollArea):
     def __init__(self):
         super(SearchTab, self).__init__()
+        self.setWidgetResizable(True)
         self.search_field = QLineEdit(self)
         self.search_field.setGeometry(QtCore.QRect(73, 10, 231, 25))
         self.search_button = QPushButton(self)
@@ -43,20 +44,32 @@ class HomeTab(QWidget):
     def __init__(self):
         super(HomeTab, self).__init__()
         self.grid = QGridLayout(self)
-        self.main_env = ManyTweetBox(self)
+        self.main_env = ManyTweetBox(self, self.reload)
         self.grid.addWidget(self.main_env, 0, 0, 1, 1)
-        self.updateTweets()
+        self.reload()
 
     def addWriteTweetHeader(self, username: str):
         self.main_env.addWriteTweetHeader(username)
 
-    def updateTweets(self):
+    def reload(self):
         self.main_env.updateAllTweets()
 
 
 class ProfileTab(QWidget):
+    tweetCatcher: callable
+
     def __init__(self):
-        super(ProfileTab, self).__init__()
+        super().__init__()
+        self.grid = QGridLayout(self)
+    #     self.main_env = ManyTweetBox(self, self.reload)
+    #     self.grid.addWidget(self.main_env, 0, 0, 1, 1)
+    #     self.reload()
+    #
+    # def addProfileInfoHeader(self, user_info: dict[str, str]):
+    #     self.main_env.addProfileInfoHeader()
+    #
+    # def reload(self):
+    #     self.main_env.updateAllTweets()
 
 
 if __name__ == "__main__":
