@@ -1,15 +1,23 @@
 import sys
-sys.path.insert(1, '/home/pedram/PycharmProjects/my-project/')
-sys.path.insert(1, '/home/pedram/PycharmProjects/my-project/client')
 
-from typing import Union
+from typing import Union, Iterable
 
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, \
-    QTextBrowser, QPushButton, QScrollArea, QApplication
+    QTextBrowser, QPushButton, QScrollArea, QApplication, QMessageBox
 
 from client.BackendPackages.ClientKeywords import *
 
+
+def popBox(title: str, message: str, icon: int, std_buttons: Iterable[int]):
+    res = 0
+    for num in std_buttons:
+        res = res | num
+    popup_window = QMessageBox(text=message)
+    popup_window.setWindowTitle(title)
+    popup_window.setIcon(icon)
+    popup_window.setStandardButtons(res)
+    popup_window.exec_()
 
 
 class SingleTweetContainer(QWidget):
@@ -31,18 +39,18 @@ class SingleTweetContainer(QWidget):
     def __setupUsername(self):
         self.username_field = QPushButton(self)
         self.username_field.setObjectName("username_field")
-        self.gridLayout.addWidget(self.username_field, 0, 0, 1, 2)
+        self.gridLayout.addWidget(self.username_field, 0, 0, 1, 1)
 
     def __setupTimeField(self):
         self.time_label = QLabel(self)
         self.time_label.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.time_label.setObjectName("time_field")
-        self.gridLayout.addWidget(self.time_label, 0, 2, 1, 1)
+        self.gridLayout.addWidget(self.time_label, 0, 3, 1, 1)
 
     def __setupTweetTextField(self):
         self.tweet_text_field = QTextBrowser(self)
         self.tweet_text_field.setObjectName("tweet_text_field")
-        self.gridLayout.addWidget(self.tweet_text_field, 1, 0, 1, 3)
+        self.gridLayout.addWidget(self.tweet_text_field, 1, 0, 1, 4)
 
     def __setupLikeButton(self):
         self.like_button = QPushButton(self)
@@ -65,10 +73,10 @@ class SingleTweetContainer(QWidget):
 
 class SingleTweetBox(QScrollArea):
     likeFunc: callable
-    commentFunc: callable
 
-    def __init__(self, mother_area: QWidget = None):
+    def __init__(self, mother_area: QWidget = None, reloader: callable = None):
         super().__init__(mother_area)
+        self.reloader = reloader
         self.setGeometry(QtCore.QRect(0, 10, 450, 250))
         self.setMinimumSize(QtCore.QSize(450, 250))
         self.setMaximumSize(QtCore.QSize(450, 250))
@@ -87,13 +95,19 @@ class SingleTweetBox(QScrollArea):
         self.__setButtons()
 
     def __setButtons(self):
-        self.box.like_button.clicked.connect(
-            lambda: self.likeFunc(self.tweet_id)
-        )
-        self.box.comment_button.clicked.connect(
-            lambda: self.commentFunc(self.tweet_id)
-        )
+        self.box.like_button.clicked.connect(self.likeClicked)
+        self.box.comment_button.clicked.connect(self.commentClicked)
 
+    def likeClicked(self):
+        res = self.likeFunc(self.tweet_id)
+        if res[OUTCOME]:
+            self.reloader()
+        else:
+            popBox(title=FAILED, message=f'{res[STATUS]}', icon=QMessageBox.Critical,
+                   std_buttons=[QMessageBox.Ok])
+
+    def commentClicked(self):
+        print('comment button clicked!')
 
 
 if __name__ == "__main__":
