@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import QWidget, QPushButton, \
 import sys
 
 
+
 class BaseLogRegWidget(QTabWidget):
     def __init__(self, mother_area: QWidget = None):
         super().__init__(mother_area)
