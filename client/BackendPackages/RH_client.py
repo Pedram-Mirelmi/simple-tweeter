@@ -1,5 +1,5 @@
 import socket
-from keywords import *
+from .ClientKeywords import *
 from typing import Union
 import json
 
