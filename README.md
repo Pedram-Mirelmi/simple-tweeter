@@ -14,5 +14,5 @@ The comunication between client and server is based on socket programming and js
 Also i used threading so it can talk to multiple clients at the same time and if one of them crashes servers stays running. <br /> 
 
 ## database
-The database uses MYSQL DBMS and server connect to the database using sql-connector <br /> 
-The commands related to database creation is in the "database sources/"
+The database uses MYSQL DBMS and server connects to the database using sql-connector <br /> 
+The commands related to database creation is in the "database sources/" directory
