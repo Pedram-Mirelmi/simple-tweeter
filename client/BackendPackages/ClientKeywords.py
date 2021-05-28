@@ -16,10 +16,13 @@ OUTCOME = "outcome"
 LOGIN = 'login'
 REGISTER = 'register'
 STATUS = 'status'
+SUCCESS = 'SUCCESS'
+FAILED = 'FAILED'
 
 NEW_TWEET = 'new_tweet'
 TWEET_TEXT = 'tweet_text'
 ALL_TWEETS = 'all_tweets'
+USER_TWEETS = 'user_tweets'
 TWEET_ID = 'tweet_id'
 LIKE_TWEET = 'like_tweet'
 GET_COMMENTS = 'get_comments'
