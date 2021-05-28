@@ -3,21 +3,20 @@ import sys
 from client.BackendPackages.BackendApp import BaseBackendApp
 from client.BackendPackages.ClientKeywords import *
 
-from PyQt5.QtWidgets import QApplication, QMessageBox, QMainWindow, QWidget, QGridLayout, QTabWidget, QMenuBar, \
-    QStatusBar
+from PyQt5.QtWidgets import QApplication, QMessageBox, QMainWindow, \
+    QWidget, QGridLayout, QTabWidget, QMenuBar, QStatusBar, QTextEdit
 from PyQt5 import QtCore
 
 from client.UIPackages.LoginRegister import LogRegWidget
 import client.UIPackages.Widgets.Tabs as Tabs
 import client.UIPackages.Widgets.ToolBarMenus as ToolMenus
 from client.UIPackages.Widgets.SingleTweet import SingleTweetBox
-from client.UIPackages.Widgets.WriteTweet import WriteTweetBox
-from client.UIPackages.Widgets.ManyTweet import ManyTweetBox
+from client.UIPackages.PopupWindow import popBox
 
 
 class BaseUIApp(QMainWindow):
     def __init__(self):
-        super().__init__()
+        QMainWindow.__init__(self)
         self.resize(821, 594)
         self.central_widget = QWidget(self)
         self.main_layout = QGridLayout(self.central_widget)
@@ -72,78 +71,114 @@ class BaseUIApp(QMainWindow):
 
 
 class App(BaseUIApp, BaseBackendApp):
-    def __init__(self, port: int = 9990, max_req_len: int = 4):
+    def __init__(self, port: int = 9999, max_req_len: int = 4):
         BaseUIApp.__init__(self)
         BaseBackendApp.__init__(self, port, max_req_len)
-        self.logreg_widget = LogRegWidget(self)
+        self.logreg_widget = LogRegWidget(self, self.req_handler)
         self.main_layout.addWidget(self.logreg_widget, 0, 0, 1, 1)
-        self.initiateIntro()
+        self.setIntro()
 
-    def __setFuncs(self):
-        SingleTweetBox.likeFunc = self.likeTweet
-        WriteTweetBox.sendButtonFunc = self.writeNewTweet
-        ManyTweetBox.tweetCatcher = self._getAllTweet
+    def setIntro(self):
+        self.logreg_widget.register_button.clicked.connect(
+            lambda: self.register(self.logreg_widget.reg_user_field.text(),
+                                  self.logreg_widget.reg_name_field.text(),
+                                  self.logreg_widget.reg_pass_field.text())
+        )
+        self.logreg_widget.login_button.clicked.connect(
+            lambda: self.login(self.logreg_widget.log_user_field.text(),
+                               self.logreg_widget.log_pass_field.text())
+        )
 
-    def initiateIntro(self):
-        LogRegWidget.login_button_func = self.login
-        LogRegWidget.register_button_func = self.register
-
-    def __initiateMainEnv(self):
-        self.logreg_widget.deleteLater()
-        del self.logreg_widget
+    def initiateMainEnv(self):
+        self.deleteLogReqWindow()
         self.req_handler.setUserInfo(self.user_info)
-        self.__setFuncs()
         self._setupMainUI()
         self.setMainTabs()
-        print(self.user_info)
+        self.addHeaderToHomeTab()
+        self.addHeaderToProfileTab()
+        self.reload()
+
+    def addHeaderToProfileTab(self):
+        self.profile_tab.addProfileInfoHeader(self.user_info)
+
+    def addHeaderToHomeTab(self):
         self.home_tab.addWriteTweetHeader(self.user_info[USERNAME])
+        self.home_tab.main_env.header.send_button.clicked.connect(
+            lambda: self.writeNewTweet(self.home_tab.main_env.header.tweet_text_field)
+        )
 
-    def login(self, username: str, password: str):
-        res = self._login(username, password)
-        if res[OUTCOME]:
-            self.popBox(title=SUCCESS, message='You successfully logged in!',
-                        Qicon=QMessageBox.Information, std_buttons=[QMessageBox.Ok])
-            self.user_info = res
-            self.__initiateMainEnv()
-        else:
-            self.popBox(title=FAILED, message=res[STATUS],
-                        Qicon=QMessageBox.Critical, std_buttons=[QMessageBox.Ok])
+    def deleteLogReqWindow(self):
+        self.logreg_widget.deleteLater()
+        del self.logreg_widget
 
-    def register(self, username: str, name: str, password: str):
-        res = self._register(username, name, password)
-        if res[OUTCOME]:
-            self.popBox(title=SUCCESS, message='You successfully registered!',
-                        Qicon=QMessageBox.Information, std_buttons=[QMessageBox.Ok])
-            self.user_info = res
-            self.__initiateMainEnv()
-        else:
-            self.popBox(title=FAILED, message=res[STATUS],
-                        Qicon=QMessageBox.Critical, std_buttons=[QMessageBox.Ok])
+    def reload(self):
+        self.reloadTab(self.home_tab)
+        self.reloadTab(self.profile_tab, self.user_info[USER_ID])
+
+    def reloadTab(self, tab: Tabs.TweetsTab, user_id: int = -1):
+        tab.clear()
+        all_tweets = self.req_handler.allTweets() if user_id == -1 \
+            else self.req_handler.userTweets(user_id)
+        for tweet_info in all_tweets:
+            new_tweet = SingleTweetBox(tab.main_env, tweet_info)
+            self.addTweetToTab(new_tweet, tab)
+            tab.all_tweets.append(new_tweet)
+
+    def addTweetToTab(self, new_tweet: SingleTweetBox, tab: Tabs.TweetsTab):
+        tab.main_env.t_container.grid.addWidget(
+            new_tweet, tab.main_env.row_index, 0, 1, 1)
+        tab.main_env.row_index += 1
+        new_tweet.box.like_button.clicked.connect(
+            lambda: self.likeTweet(new_tweet.info[TWEET_ID])
+        )
 
     def likeTweet(self, tweet_id: int):
-        return self._likeTweet(tweet_id)
+        response = self._likeTweet(tweet_id)
+        if not response[OUTCOME]:
+            popBox(title=FAILED, message=f'{response[STATUS]}', Qicon=QMessageBox.Critical,
+                   std_buttons=[QMessageBox.Ok])
+        else:
+            self.reloadTab(self.main_tab_widget.currentWidget())
 
-    def writeNewTweet(self, tweet_text: str):
-        response = self._writeNewTweet(tweet_text)[OUTCOME]
+    def login(self, username: str, password: str):
+        response = self._login(username, password)
+        if response[OUTCOME]:
+            popBox(title=SUCCESS, message='You successfully logged in!',
+                   Qicon=QMessageBox.Information, std_buttons=[QMessageBox.Ok])
+            self.user_info = response
+            self.initiateMainEnv()
+        else:
+            popBox(title=FAILED, message=response[STATUS],
+                   Qicon=QMessageBox.Critical, std_buttons=[QMessageBox.Ok])
 
-    @staticmethod
-    def popBox(title: str, message: str, Qicon: int, std_buttons: list[int]):
-        res = 0
-        for num in std_buttons:
-            res = res | num
-        popup_window = QMessageBox(text=message)
-        popup_window.setWindowTitle(title)
-        popup_window.setIcon(Qicon)
-        popup_window.setStandardButtons(res)
-        popup_window.exec_()
+    def register(self, username: str, name: str, password: str):
+        response = self._register(username, name, password)
+        if response[OUTCOME]:
+            popBox(title=SUCCESS, message='You successfully registered!',
+                   Qicon=QMessageBox.Information, std_buttons=[QMessageBox.Ok])
+            self.user_info = response
+            self.initiateMainEnv()
+        else:
+            popBox(title=FAILED, message=response[STATUS],
+                   Qicon=QMessageBox.Critical, std_buttons=[QMessageBox.Ok])
+
+    def writeNewTweet(self, tweet_text_field: QTextEdit):
+        response = self._writeNewTweet(tweet_text_field.toPlainText())
+        if response[OUTCOME]:
+            tweet_text_field.clear()
+            self.reload()
+        else:
+            popBox(title=FAILED, message="Couldn't write new tweet!",
+                   Qicon=QMessageBox.Critical, std_buttons=QMessageBox.Ok)
+
+    def __del__(self):
+        self.req_handler.terminate()
 
 
 if __name__ == "__main__":
     qt_app = QApplication(sys.argv)
 
-    a = QApplication(sys.argv)
-
-    window = App()
+    window = App(port=9990)
     window.show()
 
     sys.exit(qt_app.exec_())
