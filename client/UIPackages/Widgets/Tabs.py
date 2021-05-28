@@ -10,6 +10,7 @@ sys.path.insert(1, '/home/pedram/PycharmProjects/my-project/client')
 
 from client.BackendPackages import ClientKeywords
 from .ManyTweet import ManyTweetBox
+from .SingleTweet import SingleTweetBox
 
 
 class SearchTab(QScrollArea):
@@ -38,38 +39,38 @@ class SearchTab(QScrollArea):
         pass
 
 
-class HomeTab(QWidget):
-    tweetCatcher: callable
+class TweetsTab(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.grid = QGridLayout(self)
+        self.main_env = ManyTweetBox(self)
+        self.grid.addWidget(self.main_env, 0, 0, 1, 1)
+        self.all_tweets = []
 
+    def clear(self):
+        self.all_tweets: list[SingleTweetBox]
+        while self.all_tweets:
+            tweet = self.all_tweets.pop()
+            tweet.deleteLater()
+            del tweet
+        self.main_env.row_index = 1
+
+
+class HomeTab(TweetsTab):
     def __init__(self):
         super(HomeTab, self).__init__()
-        self.grid = QGridLayout(self)
-        self.main_env = ManyTweetBox(self, self.reload)
-        self.grid.addWidget(self.main_env, 0, 0, 1, 1)
-        self.reload()
 
     def addWriteTweetHeader(self, username: str):
         self.main_env.addWriteTweetHeader(username)
 
-    def reload(self):
-        self.main_env.updateAllTweets()
 
-
-class ProfileTab(QWidget):
-    tweetCatcher: callable
-
+class ProfileTab(TweetsTab):
     def __init__(self):
         super().__init__()
-        self.grid = QGridLayout(self)
-    #     self.main_env = ManyTweetBox(self, self.reload)
-    #     self.grid.addWidget(self.main_env, 0, 0, 1, 1)
-    #     self.reload()
-    #
-    # def addProfileInfoHeader(self, user_info: dict[str, str]):
-    #     self.main_env.addProfileInfoHeader()
-    #
-    # def reload(self):
-    #     self.main_env.updateAllTweets()
+
+    def addProfileInfoHeader(self, user_info: dict[str, str]):
+        self.main_env.addProfileInfoHeader(user_info)
+
 
 
 if __name__ == "__main__":
