@@ -5,40 +5,44 @@ import json
 
 
 class RequestHandler:
-    def __init__(self, port: int = 9999, max_req_len: int = 4):
-        self._user_info = {}
+    def __init__(self, user_info: dict[str, str], port: int = 9990, max_req_len: int = 4):
+        self._user_info = user_info
         self._max_req_len = max_req_len
         self._sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._sock.connect(("localhost", port))
 
-    def getComments(self, tweet_id):
+    def getComments(self, tweet_id) -> list[dict[str, str]]:
         return self._send({REQUEST_TYPE: GET_COMMENTS,
                            TWEET_ID: tweet_id})
 
-    def likeTweet(self, tweet_id: int) -> dict:
+    def likeTweet(self, tweet_id: int) -> dict[str, str]:
         return self._send({REQUEST_TYPE: LIKE_TWEET,
                            TWEET_ID: tweet_id,
                            USER_ID: self._user_info[USER_ID]})
 
-    def addComment(self, comment_text: str, tweet_id: int):
+    def addComment(self, comment_text: str, tweet_id: int) -> dict[str, str]:
         return self._send({REQUEST_TYPE: ADD_COMMENT,
                            USER_ID: self._user_info[USER_ID],
                            TWEET_ID: tweet_id,
                            COMMENT_TEXT: comment_text})
 
-    def newTweet(self, tweet_text: str) -> dict:
+    def newTweet(self, tweet_text: str) -> dict[str, str]:
         return self._send({USER_ID: self._user_info[USER_ID],
                            REQUEST_TYPE: NEW_TWEET,
                            TWEET_TEXT: tweet_text})
 
-    def allTweets(self) -> list:
+    def userTweets(self, user_id: int) -> list[dict[str, str]]:
+        return self._send({REQUEST_TYPE: USER_TWEETS,
+                           USER_ID: user_id})
+
+    def allTweets(self) -> list[dict[str, str]]:
         return self._send({REQUEST_TYPE: ALL_TWEETS})
 
-    def login(self, user_info: dict) -> dict:
+    def login(self, user_info: dict) -> dict[str, str]:
         user_info[REQUEST_TYPE] = LOGIN
         return self._send(user_info)
 
-    def register(self, user_info) -> dict:
+    def register(self, user_info) -> dict[str, str]:
         user_info[REQUEST_TYPE] = REGISTER
         return self._send(user_info)
 
@@ -56,10 +60,10 @@ class RequestHandler:
         print(f'sending: {res_str}')
         self._sock.send(bytes(res_str, encoding='utf-8'))
 
-    def setUserInfo(self, user_info: dict):
+    def setUserInfo(self, user_info: dict) -> None:
         self._user_info = user_info
 
-    def terminate(self):
+    def terminate(self) -> None:
         print('terminating...')
         self.__sendReq({})
         self._sock.close()

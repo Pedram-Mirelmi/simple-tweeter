@@ -32,8 +32,6 @@ class RequestHandler:
             print(request)
             raise Exception(f'Invalid request: {request}')
 
-
-
     def _addComment(self, request: dict) -> dict:
         try:
             self.__INSERT(COMMENTS, (TWEET_ID, USER_ID, COMMENT_TEXT),
@@ -131,4 +129,3 @@ class RequestHandler:
 
     def __del__(self):
         self.connection.commit()
-
