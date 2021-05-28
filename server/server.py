@@ -1,4 +1,3 @@
-
 import socket
 import threading
 from packages.RH_server import RequestHandler
@@ -6,7 +5,7 @@ import json
 
 
 class Server:
-    def __init__(self, port_num: int = 9999, max_req_size: int = 4) -> None:
+    def __init__(self, port_num: int = 9990, max_req_size: int = 4):
         self.port = port_num
         self.max_req_size = max_req_size
         self.req_handler = RequestHandler()
@@ -47,6 +46,5 @@ class Server:
 
 
 if __name__ == '__main__':
-    server = Server()
+    server = Server(port_num=9990)
     server.runServer()
-    
