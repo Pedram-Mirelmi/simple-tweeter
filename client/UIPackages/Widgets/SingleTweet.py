@@ -1,5 +1,3 @@
-import sys
-
 from typing import Union, Iterable
 
 from PyQt5 import QtCore
@@ -7,17 +5,7 @@ from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, \
     QTextBrowser, QPushButton, QScrollArea, QApplication, QMessageBox
 
 from client.BackendPackages.ClientKeywords import *
-
-
-def popBox(title: str, message: str, icon: int, std_buttons: Iterable[int]):
-    res = 0
-    for num in std_buttons:
-        res = res | num
-    popup_window = QMessageBox(text=message)
-    popup_window.setWindowTitle(title)
-    popup_window.setIcon(icon)
-    popup_window.setStandardButtons(res)
-    popup_window.exec_()
+from ..PopupWindow import popBox
 
 
 class SingleTweetContainer(QWidget):
@@ -72,19 +60,17 @@ class SingleTweetContainer(QWidget):
 
 
 class SingleTweetBox(QScrollArea):
-    likeFunc: callable
-
-    def __init__(self, mother_area: QWidget = None, reloader: callable = None):
+    def __init__(self, mother_area: QWidget = None, info: dict[str, str] = None):
         super().__init__(mother_area)
-        self.reloader = reloader
+        self.info = info
         self.setGeometry(QtCore.QRect(0, 10, 450, 250))
         self.setMinimumSize(QtCore.QSize(450, 250))
         self.setMaximumSize(QtCore.QSize(450, 250))
         self.setWidgetResizable(True)
-        self.tweet_id = -1
         self.setObjectName("tweet_box")
         self.box = SingleTweetContainer(self)
         self.setWidget(self.box)
+        self.initiateTweet(info)
 
     def initiateTweet(self, tweet_info: dict[str, Union[str, int]]):
         self.tweet_id = tweet_info[TWEET_ID]
@@ -92,20 +78,21 @@ class SingleTweetBox(QScrollArea):
         self.box.time_label.setText(tweet_info[CREATED_AT])
         self.box.tweet_text_field.setText(tweet_info[TWEET_TEXT])
         self.box.like_button.setText(f"Like({tweet_info[LIKES]})")
-        self.__setButtons()
+        # self.__setButtons()
 
-    def __setButtons(self):
-        self.box.like_button.clicked.connect(self.likeClicked)
-        self.box.comment_button.clicked.connect(self.commentClicked)
+    # def __setButtons(self):
+    #     self.box.like_button.clicked.connect(self.likeClicked)
+    #     self.box.comment_button.clicked.connect(self.commentClicked)
 
-    def likeClicked(self):
-        res = self.likeFunc(self.tweet_id)
-        if res[OUTCOME]:
-            self.reloader()
-        else:
-            popBox(title=FAILED, message=f'{res[STATUS]}', icon=QMessageBox.Critical,
-                   std_buttons=[QMessageBox.Ok])
+    # def likeClicked(self):
+    #     res = self.likeFunc(self.tweet_id)
+    #     if res[OUTCOME]:
+    #         self.reloader()
+    #     else:
+    #         popBox(title=FAILED, message=f'{res[STATUS]}', Qicon=QMessageBox.Critical,
+    #                std_buttons=[QMessageBox.Ok])
 
+    @staticmethod
     def commentClicked(self):
         print('comment button clicked!')
 
