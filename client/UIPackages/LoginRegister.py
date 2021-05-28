@@ -4,6 +4,8 @@ from PyQt5.QtWidgets import QWidget, QPushButton, \
 
 import sys
 
+from client.BackendPackages.RH_client import RequestHandler
+from client.BackendPackages.ClientKeywords import *
 
 
 class BaseLogRegWidget(QTabWidget):
@@ -72,26 +74,24 @@ class BaseLogRegWidget(QTabWidget):
 
 
 class LogRegWidget(BaseLogRegWidget):
-    login_button_func: callable
-    register_button_func: callable
-
-    def __init__(self, mother_area: QWidget = None):
+    def __init__(self, mother_area: QWidget = None, req_handler: RequestHandler = None):
         super().__init__(mother_area)
-        self.initiateLogin()
-        self.initiateRegister()
+        # self.req_handler = req_handler
+        # self.initiateButtons()
 
-    def initiateRegister(self):
-        self.register_button.clicked.connect(
-            lambda: self.register_button_func(self.reg_user_field.text(),
-                                              self.reg_name_field.text(),
-                                              self.reg_pass_field.text())
-        )
+    # def initiateButtons(self):
+    #     self.register_button.clicked.connect(self.loginClicked)
+    #     self.login_button.clicked.connect(self.loginClicked)
+    #
+    # def loginClicked(self):
+    #     outcome = self.req_handler.login({USERNAME: self.log_user_field.text(),
+    #                                       PASSWORD: self.log_pass_field.text()})[OUTCOME]
+    #
+    # def registerClicked(self):
+    #     outcome = self.req_handler.register({USERNAME: self.reg_user_field.text(),
+    #                                          PASSWORD: self.reg_pass_field.text(),
+    #                                          NAME: self.reg_name_field.text()})[OUTCOME]
 
-    def initiateLogin(self):
-        self.login_button.clicked.connect(
-            lambda: self.login_button_func(self.log_user_field.text(),
-                                           self.log_pass_field.text())
-        )
 
 
 if __name__ == "__main__":
