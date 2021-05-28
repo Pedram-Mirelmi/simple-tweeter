@@ -20,8 +20,13 @@ class RequestHandler:
                            TWEET_ID: tweet_id,
                            USER_ID: self._user_info[USER_ID]})
 
+    def likeComment(self, comment_id: int) -> dict[str, str]:
+        return self._send({REQUEST_TYPE: LIKE_COMMENT,
+                           COMMENT_ID: comment_id,
+                           USER_ID: self._user_info[USER_ID]})
+
     def addComment(self, comment_text: str, tweet_id: int) -> dict[str, str]:
-        return self._send({REQUEST_TYPE: ADD_COMMENT,
+        return self._send({REQUEST_TYPE: NEW_COMMENT,
                            USER_ID: self._user_info[USER_ID],
                            TWEET_ID: tweet_id,
                            COMMENT_TEXT: comment_text})
@@ -31,11 +36,17 @@ class RequestHandler:
                            REQUEST_TYPE: NEW_TWEET,
                            TWEET_TEXT: tweet_text})
 
+    def newComment(self, comment_text: str, tweet_id: int) -> dict[str, str]:
+        return self._send({REQUEST_TYPE: NEW_COMMENT,
+                           TWEET_ID: tweet_id,
+                           COMMENT_TEXT: comment_text,
+                           USER_ID: self._user_info[USER_ID]})
+
     def userTweets(self, user_id: int) -> list[dict[str, str]]:
         return self._send({REQUEST_TYPE: USER_TWEETS,
                            USER_ID: user_id})
 
-    def allTweets(self) -> list[dict[str, str]]:
+    def getAllTweets(self) -> list[dict[str, str]]:
         return self._send({REQUEST_TYPE: ALL_TWEETS})
 
     def login(self, user_info: dict) -> dict[str, str]:

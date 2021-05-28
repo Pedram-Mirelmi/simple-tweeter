@@ -5,9 +5,9 @@ from PyQt5.QtWidgets import QPushButton, QWidget, QLineEdit, QListView, QLabel, 
 
 
 from client.BackendPackages import ClientKeywords
-from .ManyTweet import ManyTweetBox
-from .SingleTweet import SingleTweetBox
-from .Headers import WriteTweetHeader, ProfileInfoHeader
+from .ManyTweet import MultiTweetBox
+from .Boxes import SingleTweetBox
+from .Headers import ProfileInfoHeader, WriteItemHeader
 
 class SearchTab(QScrollArea):
     def __init__(self):
@@ -35,34 +35,40 @@ class SearchTab(QScrollArea):
         pass
 
 
-class TweetsTab(QWidget):
+class MultiItemTab(QWidget):
     def __init__(self):
         super().__init__()
         self.grid = QGridLayout(self)
-        self.main_env = ManyTweetBox(self)
+        self.main_env = MultiTweetBox(self)
         self.grid.addWidget(self.main_env, 0, 0, 1, 1)
-        self.all_tweets = []
+        self.all_items = []
 
     def clear(self):
-        self.all_tweets: list[SingleTweetBox]
-        while self.all_tweets:
-            tweet = self.all_tweets.pop()
+        self.all_items: list[SingleTweetBox]
+        while self.all_items:
+            tweet = self.all_items.pop()
             tweet.deleteLater()
             del tweet
         self.main_env.row_index = 1
 
+    def __del__(self):
+        self.all_items: list[QWidget]
+        for item in self.all_items:
+            item.deleteLater()
+            del item
 
-class HomeTab(TweetsTab):
+
+class HomeTab(MultiItemTab):
     def __init__(self):
         super(HomeTab, self).__init__()
 
     def addWriteTweetHeader(self, username: str):
-        header = WriteTweetHeader(self.main_env.container)
+        header = WriteItemHeader(self.main_env.container, 'Tweet')
         header.initiateBox(username)
         self.main_env.setHeader(header)
 
 
-class ProfileTab(TweetsTab):
+class ProfileTab(MultiItemTab):
     def __init__(self):
         super().__init__()
 

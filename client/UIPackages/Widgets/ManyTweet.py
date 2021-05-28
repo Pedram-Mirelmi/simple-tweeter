@@ -1,6 +1,6 @@
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QWidget, QScrollArea, QGridLayout, QApplication
-from .Headers import ProfileInfoHeader, WriteTweetHeader
+
 
 class ManyTweetContainer(QWidget):
     def __init__(self, mother_area: QWidget = None):
@@ -9,7 +9,7 @@ class ManyTweetContainer(QWidget):
         self.grid = QGridLayout(self)
 
 
-class ManyTweetBox(QScrollArea):
+class MultiTweetBox(QScrollArea):
     def __init__(self, mother_area: QWidget = None):
         super().__init__(mother_area)
         self.container = ManyTweetContainer()

@@ -10,8 +10,9 @@ from PyQt5 import QtCore
 from client.UIPackages.LoginRegister import LogRegWidget
 import client.UIPackages.Widgets.Tabs as Tabs
 import client.UIPackages.Widgets.ToolBarMenus as ToolMenus
-from client.UIPackages.Widgets.SingleTweet import SingleTweetBox
+from client.UIPackages.Widgets.Boxes import SingleTweetBox, SingleCommentBox
 from client.UIPackages.PopupWindow import popBox
+from client.UIPackages.Widgets.Headers import WriteItemHeader
 
 
 class BaseUIApp(QMainWindow):
@@ -104,7 +105,7 @@ class App(BaseUIApp, BaseBackendApp):
     def addHeaderToHomeTab(self):
         self.home_tab.addWriteTweetHeader(self.user_info[USERNAME])
         self.home_tab.main_env.header.send_button.clicked.connect(
-            lambda: self.writeNewTweet(self.home_tab.main_env.header.tweet_text_field)
+            lambda: self.writeNewTweet(self.home_tab.main_env.header.item_text_field)
         )
 
     def deleteLogReqWindow(self):
@@ -112,19 +113,19 @@ class App(BaseUIApp, BaseBackendApp):
         del self.logreg_widget
 
     def reload(self):
-        self.reloadTab(self.home_tab)
-        self.reloadTab(self.profile_tab, self.user_info[USER_ID])
+        self.reloadTweetTab(self.home_tab)
+        self.reloadTweetTab(self.profile_tab, self.user_info[USER_ID])
 
-    def reloadTab(self, tab: Tabs.TweetsTab, user_id: int = -1):
+    def reloadTweetTab(self, tab: Tabs.MultiItemTab, user_id: int = -1):
         tab.clear()
-        all_tweets = self.req_handler.allTweets() if user_id == -1 \
+        all_tweets = self.req_handler.getAllTweets() if user_id == -1 \
             else self.req_handler.userTweets(user_id)
         for tweet_info in all_tweets:
             new_tweet = SingleTweetBox(tab.main_env, tweet_info)
-            self.addTweetToTab(new_tweet, tab)
-            tab.all_tweets.append(new_tweet)
+            self.addTweetToTab(tab, new_tweet)
+            tab.all_items.append(new_tweet)
 
-    def addTweetToTab(self, new_tweet: SingleTweetBox, tab: Tabs.TweetsTab):
+    def addTweetToTab(self, tab: Tabs.MultiItemTab, new_tweet: SingleTweetBox):
         tab.main_env.container.grid.addWidget(
             new_tweet, tab.main_env.row_index, 0, 1, 1)
         tab.main_env.row_index += 1
@@ -132,11 +133,44 @@ class App(BaseUIApp, BaseBackendApp):
             lambda: self.likeTweet(new_tweet.info[TWEET_ID])
         )
         new_tweet.box.comment_button.clicked.connect(
-            lambda: self.showComments(new_tweet.info[TWEET_ID])
+            lambda: self.showComments(new_tweet)
         )
 
-    def showComments(self, tweet_id: int):
-        pass
+    def reloadCommentTab(self, tab: Tabs.MultiItemTab, tweet_id: int):
+        tab.clear()
+        tab.main_env.row_index = 2
+        all_comments = self.req_handler.getComments(tweet_id)
+        for comment_info in all_comments:
+            new_comment = SingleCommentBox(tab.main_env, comment_info)
+            self.addCommentToTab(new_comment, tab)
+
+    def addCommentToTab(self, new_comment: SingleCommentBox, tab: Tabs.MultiItemTab):
+        tab.main_env.container.grid.addWidget(
+            new_comment, tab.main_env.row_index, 0, 1, 1)
+        tab.main_env.row_index += 1
+        new_comment.box.like_button.clicked.connect(
+            lambda: self.likeComment(new_comment.info[COMMENT_ID], new_comment.info[TWEET_ID])
+        )
+
+    def showComments(self, tweet_widget: SingleTweetBox):
+        new_tab = Tabs.MultiItemTab()
+        self.setCommentTabHeaders(new_tab, tweet_widget)
+        self.main_tab_widget.addTab(new_tab, "")
+        self.main_tab_widget.setTabText(self.main_tab_widget.indexOf(new_tab), "Comments")
+        self.main_tab_widget.setCurrentWidget(new_tab)
+        self.reloadCommentTab(new_tab, tweet_widget.info[TWEET_ID])
+
+    def setCommentTabHeaders(self, new_tab, tweet_widget: SingleTweetBox):
+        tweet_widget.box.comment_button.deleteLater()
+        del tweet_widget.box.comment_button
+        new_tab.main_env.setHeader(tweet_widget)
+        write_comment_box = WriteItemHeader(new_tab, 'Comment')
+        write_comment_box.initiateBox(self.user_info[USERNAME])
+        new_tab.main_env.container.grid.addWidget(write_comment_box, new_tab.main_env.row_index, 0, 1, 1)
+        new_tab.main_env.row_index += 1
+        write_comment_box.send_button.clicked.connect(
+            lambda: self.writeNewComment(write_comment_box.item_text_field, tweet_widget.info[TWEET_ID])
+        )
 
     def likeTweet(self, tweet_id: int):
         response = self._likeTweet(tweet_id)
@@ -144,7 +178,15 @@ class App(BaseUIApp, BaseBackendApp):
             popBox(title=FAILED, message=f'{response[STATUS]}', Qicon=QMessageBox.Critical,
                    std_buttons=[QMessageBox.Ok])
         else:
-            self.reloadTab(self.main_tab_widget.currentWidget())
+            self.reloadTweetTab(self.main_tab_widget.currentWidget())
+
+    def likeComment(self, comment_id: int, tweet_id: int):
+        response = self._likeComment(comment_id)
+        if not response[OUTCOME]:
+            popBox(title=FAILED, message=f'{response[STATUS]}', Qicon=QMessageBox.Critical,
+                   std_buttons=[QMessageBox.Ok])
+        else:
+            self.reloadCommentTab(self.main_tab_widget.currentWidget(), tweet_id)
 
     def login(self, username: str, password: str):
         response = self._login(username, password)
@@ -158,24 +200,36 @@ class App(BaseUIApp, BaseBackendApp):
                    Qicon=QMessageBox.Critical, std_buttons=[QMessageBox.Ok])
 
     def register(self, username: str, name: str, password: str):
-        response = self._register(username, name, password)
-        if response[OUTCOME]:
-            popBox(title=SUCCESS, message='You successfully registered!',
-                   Qicon=QMessageBox.Information, std_buttons=[QMessageBox.Ok])
-            self.user_info = response
-            self.initiateMainEnv()
-        else:
-            popBox(title=FAILED, message=response[STATUS],
-                   Qicon=QMessageBox.Critical, std_buttons=[QMessageBox.Ok])
+        if username and password:
+            response = self._register(username, name, password)
+            if response[OUTCOME]:
+                popBox(title=SUCCESS, message='You successfully registered!',
+                       Qicon=QMessageBox.Information, std_buttons=[QMessageBox.Ok])
+                self.user_info = response
+                self.initiateMainEnv()
+            else:
+                popBox(title=FAILED, message=response[STATUS],
+                       Qicon=QMessageBox.Critical, std_buttons=[QMessageBox.Ok])
 
     def writeNewTweet(self, tweet_text_field: QTextEdit):
-        response = self._writeNewTweet(tweet_text_field.toPlainText())
-        if response[OUTCOME]:
-            tweet_text_field.clear()
-            self.reload()
-        else:
-            popBox(title=FAILED, message="Couldn't write new tweet!",
-                   Qicon=QMessageBox.Critical, std_buttons=QMessageBox.Ok)
+        if tweet_text_field.toPlainText():
+            response = self._writeNewTweet(tweet_text_field.toPlainText())
+            if response[OUTCOME]:
+                tweet_text_field.clear()
+                self.reload()
+            else:
+                popBox(title=FAILED, message="Couldn't write new tweet!",
+                       Qicon=QMessageBox.Critical, std_buttons=QMessageBox.Ok)
+
+    def writeNewComment(self, comment_text_field: QTextEdit, tweet_id: int):
+        if comment_text_field.toPlainText():
+            response = self._writeNewComment(comment_text_field.toPlainText(), tweet_id)
+            if response[OUTCOME]:
+                comment_text_field.clear()
+                self.reloadCommentTab(self.main_tab_widget.currentWidget(), tweet_id)
+            else:
+                popBox(title=FAILED, message="Couldn't write new tweet!",
+                       Qicon=QMessageBox.Critical, std_buttons=QMessageBox.Ok)
 
     def __del__(self):
         self.req_handler.terminate()

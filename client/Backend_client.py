@@ -37,7 +37,7 @@ class App:
     def _home(self):
         """main environment"""
         while True:
-            all_tweets = self.req_handler.allTweets()
+            all_tweets = self.req_handler.getAllTweets()
             App.showTweetsList(all_tweets=all_tweets)
             choice = input('1) to write a new tweet\n'
                            '2) like a tweet\n'

@@ -11,7 +11,7 @@ E1 = 'Wrong password!'
 E2 = 'Wrong username'
 
 E_CODE = 'error_code'
-REQUEST_TYPE = "requestType"
+REQUEST_TYPE = "request_type"
 OUTCOME = "outcome"
 LOGIN = 'login'
 REGISTER = 'register'
@@ -20,15 +20,18 @@ SUCCESS = 'SUCCESS'
 FAILED = 'FAILED'
 
 NEW_TWEET = 'new_tweet'
+NEW_COMMENT = 'new_comment'
 TWEET_TEXT = 'tweet_text'
 ALL_TWEETS = 'all_tweets'
 USER_TWEETS = 'user_tweets'
 TWEET_ID = 'tweet_id'
+COMMENT_ID = 'comment_id'
 LIKE_TWEET = 'like_tweet'
+LIKE_COMMENT = 'like_comment'
 GET_COMMENTS = 'get_comments'
 
-LIKES = 'likes'
-ADD_COMMENT = 'add_comment'
+TWEETS_LIKES = 'tweets_likes'
+COMMENTS_LIKES = 'comments_likes'
 COMMENT_TEXT = 'comment_text'
 
 

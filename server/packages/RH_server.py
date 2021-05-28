@@ -22,17 +22,19 @@ class RequestHandler:
             return self._allTweets()
         if request[REQUEST_TYPE] == LIKE_TWEET:
             return self._likeTweet(request)
-        if request[REQUEST_TYPE] == ADD_COMMENT:
-            return self._addComment(request)
+        if request[REQUEST_TYPE] == NEW_COMMENT:
+            return self._newComment(request)
         if request[REQUEST_TYPE] == GET_COMMENTS:
             return self._getComments(request)
         if request[REQUEST_TYPE] == USER_TWEETS:
             return self._userTweets(request)
+        if request[REQUEST_TYPE] == LIKE_COMMENT:
+            return self._likeComment(request)
         else:
             print(request)
             raise Exception(f'Invalid request: {request}')
 
-    def _addComment(self, request: dict) -> dict:
+    def _newComment(self, request: dict) -> dict:
         try:
             self.__INSERT(COMMENTS, (TWEET_ID, USER_ID, COMMENT_TEXT),
                           (request[TWEET_ID], request[USER_ID], request[COMMENT_TEXT]))
@@ -43,19 +45,24 @@ class RequestHandler:
             return {OUTCOME: False, STATUS: f"something went wrong: {e}"}
 
     def _getComments(self, request: dict) -> list:
-        self.cursor.execute(f"{SELECT} "
-                            f"      u.{USERNAME}, "
-                            f"      c.{COMMENT_TEXT}, "
-                            f"      c.{CREATED_AT} "
-                            f"{FROM} {COMMENTS} c "
-                            f"   {JOIN} {USERS} u "
-                            f"      {USING} ({USER_ID}) "
-                            f"{WHERE} c.{TWEET_ID} = {request[TWEET_ID]}; ")
+        self.cursor.execute(f"{SELECT} * "
+                            f"{FROM} comments_show "
+                            f"{WHERE} tweet_id = {request[TWEET_ID]};")
         return self.cursor.fetchall()
+
+    def _likeComment(self, request: dict) -> dict[str, str]:
+        try:
+            self.__INSERT(COMMENTS_LIKES, (USER_ID, COMMENT_ID),
+                          (request[USER_ID], request[COMMENT_ID]))
+            return {OUTCOME: True}
+        except Error as e:
+            return {OUTCOME: False, STATUS: str(e)}
+        except Exception as e:
+            return {OUTCOME: False, STATUS: f'Something went wrong: {e}'}
 
     def _likeTweet(self, request: dict) -> dict:
         try:
-            self.__INSERT(LIKES, (USER_ID, TWEET_ID),
+            self.__INSERT(TWEETS_LIKES, (USER_ID, TWEET_ID),
                           (request[USER_ID], request[TWEET_ID]))
             return {OUTCOME: True}
         except Error as e:
@@ -78,7 +85,7 @@ class RequestHandler:
 
     def _userTweets(self, request: dict[str, str]):
         self.cursor.execute(f"{SELECT} * {FROM} tweets_show "
-                            f"{WHERE} user_id = {request[USER_ID]}")
+                            f"{WHERE} user_id = {request[USER_ID]} ")
         return self.cursor.fetchall()
 
     def _register(self, request: dict) -> dict:
