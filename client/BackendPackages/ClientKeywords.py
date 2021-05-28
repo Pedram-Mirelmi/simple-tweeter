@@ -16,6 +16,8 @@ OUTCOME = "outcome"
 LOGIN = 'login'
 REGISTER = 'register'
 STATUS = 'status'
+SUCCESS = 'SUCCESS'
+FAILED = 'FAILED'
 
 NEW_TWEET = 'new_tweet'
 TWEET_TEXT = 'tweet_text'
