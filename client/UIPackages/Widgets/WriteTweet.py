@@ -5,9 +5,8 @@ from PyQt5.QtWidgets import QGroupBox, QWidget, QGridLayout, QPushButton, QTextE
 class WriteTweetBox(QGroupBox):
     sendButtonFunc: callable
 
-    def __init__(self, mother_area: QWidget = None, reloader: callable = None):
+    def __init__(self, mother_area: QWidget = None):
         super().__init__(mother_area)
-        self.reloader = reloader
         self.setGeometry(QtCore.QRect(270, 40, 450, 244))
         self.setMinimumSize(QtCore.QSize(450, 244))
         self.setMaximumSize(QtCore.QSize(450, 250))
@@ -19,13 +18,6 @@ class WriteTweetBox(QGroupBox):
         self.send_button = QPushButton(self)
         self.gridLayout.addWidget(self.send_button, 1, 0, 1, 1)
         self.__initiateTexts(username)
-        self.send_button.clicked.connect(self.sendFunc)
-
-    def sendFunc(self):
-        if self.tweet_text_field.toPlainText().strip():
-            self.sendButtonFunc(self.tweet_text_field.toPlainText().strip())
-            self.reloader()
-        self.tweet_text_field.clear()
 
     def __initiateTexts(self, username: str):
         self.setTitle(f"Write Tweet as '{username}':")
