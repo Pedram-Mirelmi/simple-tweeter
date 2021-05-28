@@ -1,4 +1,4 @@
-from keywords import *
+from client.BackendPackages.ClientKeywords import *
 from mysql.connector import Error, connect
 from typing import Union
 
@@ -26,8 +26,13 @@ class RequestHandler:
             return self._addComment(request)
         if request[REQUEST_TYPE] == GET_COMMENTS:
             return self._getComments(request)
+        if request[REQUEST_TYPE] == USER_TWEETS:
+            return self._userTweets(request)
         else:
-            raise Exception('Invalid request')
+            print(request)
+            raise Exception(f'Invalid request: {request}')
+
+
 
     def _addComment(self, request: dict) -> dict:
         try:
@@ -73,6 +78,11 @@ class RequestHandler:
         self.cursor.execute(f"{SELECT} * {FROM} tweets_show;")
         return self.cursor.fetchall()
 
+    def _userTweets(self, request: dict[str, str]):
+        self.cursor.execute(f"{SELECT} * {FROM} tweets_show "
+                            f"{WHERE} user_id = {request[USER_ID]}")
+        return self.cursor.fetchall()
+
     def _register(self, request: dict) -> dict:
         try:
             self.__INSERT(USERS, ('username', 'password', 'name'),
@@ -94,9 +104,10 @@ class RequestHandler:
                 return {OUTCOME: False, STATUS: E1}
             res_dict[OUTCOME] = True
             return res_dict
-
-        except Error:
-            return {OUTCOME: False}
+        except Error as db_error:
+            return {OUTCOME: False, STATUS: str(db_error)}
+        except IndexError:
+            return {OUTCOME: False, STATUS: E2}
 
     def __INSERT(self, tablename: str, columns: tuple, values: tuple):
         self.cursor.execute(f"{INSERT} {INTO} {tablename} ({', '.join(map(str, columns))}) "
@@ -121,19 +132,3 @@ class RequestHandler:
     def __del__(self):
         self.connection.commit()
 
-
-# def testDB():
-#     mydb = connect(host="localhost", user="root", passwd="parotholandi", database="tweeter")
-#     cursor = mydb.cursor(dictionary=True)
-#     cursor.execute(f"UPDATE users SET username = 'changed' WHERE username = 'mum';")
-    # cursor.execute(f"SELECT user_id, password "
-    #                f"FROM users WHERE 1;")
-    # rows = cursor.fetchall()
-    # print(rows)
-    # mydb.commit()
-
-#
-# def insert(tablename: str, columns: tuple, values: tuple):
-#     mydb = connect(host="localhost", user="root", passwd="parotholandi", database="tweeter")
-#     cursor = mydb.cursor(dictionary=True)
-#     cursor.execute('SELECT * FROM users;')
