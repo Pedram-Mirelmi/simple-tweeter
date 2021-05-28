@@ -6,7 +6,7 @@ The client terminal version has these features:
 * like tweets
 * leave comments
 ## UI:
-Recently i've added a UI written by PyQT5, which the comment feature doesn't work yet. but the UI design has it.<br />
+Recently i've added a UI written by PyQT5.<br />
 I built my own widgets using inheritance in OOP. which all are in the client/UIPackages/Widgets
 
 ## server:
