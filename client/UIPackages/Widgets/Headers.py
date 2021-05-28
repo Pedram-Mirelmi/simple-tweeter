@@ -1,10 +1,31 @@
 from PyQt5 import QtCore
-from PyQt5.QtWidgets import QGroupBox, QWidget, QGridLayout, QLabel, QPushButton, QTextBrowser, QFrame
+from PyQt5.QtWidgets import QGroupBox, QWidget, QGridLayout, \
+    QLabel, QPushButton, QTextBrowser, QTextEdit
 
 from client.BackendPackages.ClientKeywords import *
 
 
-class ProfileInfoBox(QGroupBox):
+class WriteTweetHeader(QGroupBox):
+    def __init__(self, mother_area: QWidget = None):
+        super().__init__(mother_area)
+        self.setGeometry(QtCore.QRect(270, 40, 450, 244))
+        self.setMinimumSize(QtCore.QSize(450, 244))
+        self.setMaximumSize(QtCore.QSize(450, 250))
+
+    def initiateBox(self, username):
+        self.gridLayout = QGridLayout(self)
+        self.tweet_text_field = QTextEdit(self)
+        self.gridLayout.addWidget(self.tweet_text_field, 0, 0, 1, 1)
+        self.send_button = QPushButton(self)
+        self.gridLayout.addWidget(self.send_button, 1, 0, 1, 1)
+        self.__initiateTexts(username)
+
+    def __initiateTexts(self, username: str):
+        self.setTitle(f"Write Tweet as '{username}':")
+        self.send_button.setText("Send")
+
+
+class ProfileInfoHeader(QGroupBox):
     def __init__(self, mother_area: QWidget = None):
         super().__init__(mother_area)
         self.setGeometry(QtCore.QRect(60, 40, 421, 290))
@@ -34,23 +55,13 @@ class ProfileInfoBox(QGroupBox):
         self.tweets_label.setText("Tweets")
 
 
-class ProfileHeaderBox(QFrame):
-    def __init__(self, mother_area: QWidget = None):
-        super().__init__(mother_area)
-        self.grid = QGridLayout(self)
-        self.profile_info_box = ProfileInfoBox(self)
-        self.grid.addWidget(self.profile_info_box, 0, 0, 0, 0)
-
-    def initiateTexts(self, user_info: dict[str, str]):
-        self.profile_info_box.initiateTexts(user_info)
-
 if __name__ == "__main__":
     import sys
     from PyQt5.QtWidgets import QApplication
 
     app = QApplication(sys.argv)
 
-    a = ProfileHeaderBox()
+    a = ProfileInfoHeader()
     a.show()
 
     sys.exit(app.exec_())

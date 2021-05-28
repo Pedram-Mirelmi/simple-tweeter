@@ -3,15 +3,11 @@ from typing import Union
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtWidgets import QPushButton, QWidget, QLineEdit, QListView, QLabel, QScrollArea, QGridLayout
 
-import sys
-
-sys.path.insert(1, '/home/pedram/PycharmProjects/my-project/')
-sys.path.insert(1, '/home/pedram/PycharmProjects/my-project/client')
 
 from client.BackendPackages import ClientKeywords
 from .ManyTweet import ManyTweetBox
 from .SingleTweet import SingleTweetBox
-
+from .Headers import WriteTweetHeader, ProfileInfoHeader
 
 class SearchTab(QScrollArea):
     def __init__(self):
@@ -61,7 +57,9 @@ class HomeTab(TweetsTab):
         super(HomeTab, self).__init__()
 
     def addWriteTweetHeader(self, username: str):
-        self.main_env.addWriteTweetHeader(username)
+        header = WriteTweetHeader(self.main_env.container)
+        header.initiateBox(username)
+        self.main_env.setHeader(header)
 
 
 class ProfileTab(TweetsTab):
@@ -69,7 +67,9 @@ class ProfileTab(TweetsTab):
         super().__init__()
 
     def addProfileInfoHeader(self, user_info: dict[str, str]):
-        self.main_env.addProfileInfoHeader(user_info)
+        header = ProfileInfoHeader(self.main_env.container)
+        header.initiateTexts(user_info)
+        self.main_env.setHeader(header)
 
 
 

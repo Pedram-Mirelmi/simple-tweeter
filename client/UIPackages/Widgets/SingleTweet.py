@@ -65,7 +65,7 @@ class SingleTweetBox(QScrollArea):
         self.info = info
         self.setGeometry(QtCore.QRect(0, 10, 450, 250))
         self.setMinimumSize(QtCore.QSize(450, 250))
-        self.setMaximumSize(QtCore.QSize(450, 250))
+        # self.setMaximumSize(QtCore.QSize(450, 250))
         self.setWidgetResizable(True)
         self.setObjectName("tweet_box")
         self.box = SingleTweetContainer(self)

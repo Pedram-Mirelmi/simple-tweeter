@@ -125,12 +125,18 @@ class App(BaseUIApp, BaseBackendApp):
             tab.all_tweets.append(new_tweet)
 
     def addTweetToTab(self, new_tweet: SingleTweetBox, tab: Tabs.TweetsTab):
-        tab.main_env.t_container.grid.addWidget(
+        tab.main_env.container.grid.addWidget(
             new_tweet, tab.main_env.row_index, 0, 1, 1)
         tab.main_env.row_index += 1
         new_tweet.box.like_button.clicked.connect(
             lambda: self.likeTweet(new_tweet.info[TWEET_ID])
         )
+        new_tweet.box.comment_button.clicked.connect(
+            lambda: self.showComments(new_tweet.info[TWEET_ID])
+        )
+
+    def showComments(self, tweet_id: int):
+        pass
 
     def likeTweet(self, tweet_id: int):
         response = self._likeTweet(tweet_id)
