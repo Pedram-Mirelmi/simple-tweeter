@@ -1,11 +1,10 @@
-from typing import Union, Iterable
+from typing import Union
 
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, \
-    QTextBrowser, QPushButton, QScrollArea, QApplication, QMessageBox
+    QTextBrowser, QPushButton, QScrollArea, QApplication
 
 from client.BackendPackages.ClientKeywords import *
-from ..PopupWindow import popBox
 
 
 class SingleCommentContainer(QWidget):
@@ -43,7 +42,6 @@ class SingleCommentContainer(QWidget):
         self.username_field.setText("usernameField")
         self.time_label.setText("timeField")
         self.like_button.setText("Like")
-        self.comment_button.setText("Comment")
 
 
 class SingleTweetContainer(SingleCommentContainer):
@@ -51,12 +49,12 @@ class SingleTweetContainer(SingleCommentContainer):
         super().__init__(mother_area)
         self.__setupCommentButton()
 
-
     def __setupCommentButton(self):
         self.comment_button = QPushButton(self)
         self.comment_button.setObjectName("Comment_button")
         self.gridLayout.addWidget(self.comment_button, 2, 1, 1, 1)
         self.initiateTexts()
+        self.comment_button.setText("Comment")
 
 
 class SingleCommentBox(QScrollArea):
@@ -72,7 +70,6 @@ class SingleCommentBox(QScrollArea):
         self.initiateTexts(info)
 
     def initiateTexts(self, comment_info: dict[str, Union[str, int]]):
-        print(f'initiate Text with base class: {comment_info}')
         self.box.username_field.setText(comment_info[USERNAME])
         self.box.time_label.setText(comment_info[CREATED_AT])
         self.box.tweet_text_field.setText(comment_info[COMMENT_TEXT])
@@ -87,6 +84,8 @@ class SingleTweetBox(SingleCommentBox):
         self.box = SingleTweetContainer(self)
         self.setWidget(self.box)
         self.initiateTexts(info)
+        self.box.comment_button.setText(f"Comments({info[COMMENTS]})")
+
 
     def initiateTexts(self, tweet_info: dict[str, Union[str, int]]):
         self.box.username_field.setText(tweet_info[USERNAME])
