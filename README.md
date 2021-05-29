@@ -16,7 +16,7 @@ I built my own widgets using inheritance in OOP. which all are in the client/UIP
 The main window contains a tab environment. 
 * home tab(all tweets)
 * search tab(to search and visit others profile) which is still incomplete
-* profile tab(user's own profile)
+* profile tab(user's own profile) 
 
 ## server:
 The comunication between client and server is based on socket programming and json.<br /> 
