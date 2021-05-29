@@ -3,11 +3,11 @@ from typing import Union
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtWidgets import QPushButton, QWidget, QLineEdit, QListView, QLabel, QScrollArea, QGridLayout
 
-
 from client.BackendPackages import ClientKeywords
 from .ManyTweet import MultiTweetBox
 from .Boxes import SingleTweetBox
 from .Headers import ProfileInfoHeader, WriteItemHeader
+
 
 class SearchTab(QScrollArea):
     def __init__(self):
@@ -46,9 +46,12 @@ class MultiItemTab(QWidget):
     def clear(self):
         self.all_items: list[SingleTweetBox]
         while self.all_items:
-            tweet = self.all_items.pop()
-            tweet.deleteLater()
-            del tweet
+            try:
+                tweet = self.all_items.pop()
+                tweet.deleteLater()
+                del tweet
+            except:
+                pass
         self.main_env.row_index = 1
 
     def __del__(self):
@@ -76,7 +79,6 @@ class ProfileTab(MultiItemTab):
         header = ProfileInfoHeader(self.main_env.container)
         header.initiateTexts(user_info)
         self.main_env.setHeader(header)
-
 
 
 if __name__ == "__main__":

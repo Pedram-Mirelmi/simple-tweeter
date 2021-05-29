@@ -1,5 +1,5 @@
 import sys
-
+import copy
 from client.BackendPackages.BackendApp import BaseBackendApp
 from client.BackendPackages.ClientKeywords import *
 
@@ -81,13 +81,13 @@ class App(BaseUIApp, BaseBackendApp):
 
     def setIntro(self):
         self.logreg_widget.register_button.clicked.connect(
-            lambda: self.register(self.logreg_widget.reg_user_field.text(),
-                                  self.logreg_widget.reg_name_field.text(),
-                                  self.logreg_widget.reg_pass_field.text())
+            lambda: self.register(self.logreg_widget.reg_user_field.text().strip(),
+                                  self.logreg_widget.reg_name_field.text().strip(),
+                                  self.logreg_widget.reg_pass_field.text().strip())
         )
         self.logreg_widget.login_button.clicked.connect(
-            lambda: self.login(self.logreg_widget.log_user_field.text(),
-                               self.logreg_widget.log_pass_field.text())
+            lambda: self.login(self.logreg_widget.log_user_field.text().strip(),
+                               self.logreg_widget.log_pass_field.text().strip())
         )
 
     def initiateMainEnv(self):
@@ -133,7 +133,7 @@ class App(BaseUIApp, BaseBackendApp):
             lambda: self.likeTweet(new_tweet.info[TWEET_ID])
         )
         new_tweet.box.comment_button.clicked.connect(
-            lambda: self.showComments(new_tweet)
+            lambda: self.showComments(new_tweet.info)
         )
 
     def reloadCommentTab(self, tab: Tabs.MultiItemTab, tweet_id: int):
@@ -143,6 +143,7 @@ class App(BaseUIApp, BaseBackendApp):
         for comment_info in all_comments:
             new_comment = SingleCommentBox(tab.main_env, comment_info)
             self.addCommentToTab(new_comment, tab)
+            tab.all_items.append(new_comment)
 
     def addCommentToTab(self, new_comment: SingleCommentBox, tab: Tabs.MultiItemTab):
         tab.main_env.container.grid.addWidget(
@@ -152,8 +153,9 @@ class App(BaseUIApp, BaseBackendApp):
             lambda: self.likeComment(new_comment.info[COMMENT_ID], new_comment.info[TWEET_ID])
         )
 
-    def showComments(self, tweet_widget: SingleTweetBox):
+    def showComments(self, tweet_info: dict[str, str]):
         new_tab = Tabs.MultiItemTab()
+        tweet_widget = SingleTweetBox(new_tab.main_env, tweet_info)
         self.setCommentTabHeaders(new_tab, tweet_widget)
         self.main_tab_widget.addTab(new_tab, "")
         self.main_tab_widget.setTabText(self.main_tab_widget.indexOf(new_tab), "Comments")
@@ -179,6 +181,7 @@ class App(BaseUIApp, BaseBackendApp):
                    std_buttons=[QMessageBox.Ok])
         else:
             self.reloadTweetTab(self.main_tab_widget.currentWidget())
+            self.reload()
 
     def likeComment(self, comment_id: int, tweet_id: int):
         response = self._likeComment(comment_id)
@@ -187,6 +190,7 @@ class App(BaseUIApp, BaseBackendApp):
                    std_buttons=[QMessageBox.Ok])
         else:
             self.reloadCommentTab(self.main_tab_widget.currentWidget(), tweet_id)
+            self.reload()
 
     def login(self, username: str, password: str):
         response = self._login(username, password)
@@ -213,7 +217,7 @@ class App(BaseUIApp, BaseBackendApp):
 
     def writeNewTweet(self, tweet_text_field: QTextEdit):
         if tweet_text_field.toPlainText():
-            response = self._writeNewTweet(tweet_text_field.toPlainText())
+            response = self._writeNewTweet(tweet_text_field.toPlainText().strip())
             if response[OUTCOME]:
                 tweet_text_field.clear()
                 self.reload()
@@ -223,10 +227,11 @@ class App(BaseUIApp, BaseBackendApp):
 
     def writeNewComment(self, comment_text_field: QTextEdit, tweet_id: int):
         if comment_text_field.toPlainText():
-            response = self._writeNewComment(comment_text_field.toPlainText(), tweet_id)
+            response = self._writeNewComment(comment_text_field.toPlainText().strip(), tweet_id)
             if response[OUTCOME]:
                 comment_text_field.clear()
                 self.reloadCommentTab(self.main_tab_widget.currentWidget(), tweet_id)
+                self.reload()
             else:
                 popBox(title=FAILED, message="Couldn't write new tweet!",
                        Qicon=QMessageBox.Critical, std_buttons=QMessageBox.Ok)
