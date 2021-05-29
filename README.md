@@ -1,13 +1,22 @@
 # simple tweeter
 
 ## client:
-The client terminal version has these features:
-* writing new tweet 
+The client UI version now has these features:
+* write new tweet 
 * like tweets
-* leave comments
+* view comments
+* leave new comments
+* like others comments
+* user profile tab (managing user's own tweets)
+
+
 ## UI:
 Recently i've added a UI written by PyQT5.<br />
-I built my own widgets using inheritance in OOP. which all are in the client/UIPackages/Widgets
+I built my own widgets using inheritance in OOP. which all are in the client/UIPackages/Widgets <br />
+The main window contains a tab environment. 
+* home tab(all tweets)
+* search tab(to search and visit others profile) which is still incomplete
+* profile tab(user's own profile)
 
 ## server:
 The comunication between client and server is based on socket programming and json.<br /> 
