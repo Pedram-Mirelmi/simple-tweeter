@@ -83,11 +83,11 @@ class App(BaseUIApp, BaseBackendApp):
         self.logreg_widget.register_button.clicked.connect(
             lambda: self.register(self.logreg_widget.reg_user_field.text().strip(),
                                   self.logreg_widget.reg_name_field.text().strip(),
-                                  self.logreg_widget.reg_pass_field.text().strip())
+                                  self.logreg_widget.reg_pass_field.text())
         )
         self.logreg_widget.login_button.clicked.connect(
             lambda: self.login(self.logreg_widget.log_user_field.text().strip(),
-                               self.logreg_widget.log_pass_field.text().strip())
+                               self.logreg_widget.log_pass_field.text())
         )
 
     def initiateMainEnv(self):
