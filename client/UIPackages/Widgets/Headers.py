@@ -32,7 +32,6 @@ class ProfileInfoHeader(QGroupBox):
         super().__init__(mother_area)
         self.setGeometry(QtCore.QRect(60, 40, 421, 290))
         self.name_label = QLabel(self)
-        self.settings_button = QPushButton(self)
         self.bio_field = QTextBrowser(self)
         self.followers_label = QLabel(self)
         self.followings_label = QLabel(self)
@@ -41,7 +40,6 @@ class ProfileInfoHeader(QGroupBox):
 
     def setIntoGrid(self):
         self.grid = QGridLayout(self)
-        self.grid.addWidget(self.settings_button, 0, 2, 1, 1)
         self.grid.addWidget(self.bio_field, 1, 0, 1, 3)
         self.grid.addWidget(self.followers_label, 2, 0, 1, 1)
         self.grid.addWidget(self.followings_label, 2, 1, 1, 1)
@@ -51,7 +49,6 @@ class ProfileInfoHeader(QGroupBox):
     def initiateTexts(self, user_info: dict[str, str]):
         self.setTitle(user_info[USERNAME])
         self.name_label.setText(user_info[NAME])
-        self.settings_button.setText("Settings")
         self.followers_label.setText("Followers")
         self.followings_label.setText("Followings")
         self.tweets_label.setText("Tweets")

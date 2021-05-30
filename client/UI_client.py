@@ -3,12 +3,12 @@ from client.BackendPackages.BackendApp import BaseBackendApp
 from client.BackendPackages.ClientKeywords import *
 
 from PyQt5.QtWidgets import QApplication, QMessageBox, QMainWindow, \
-    QWidget, QGridLayout, QTabWidget, QMenuBar, QStatusBar, QTextEdit
+    QWidget, QGridLayout, QTabWidget, QTextEdit
 from PyQt5 import QtCore
 
 from client.UIPackages.LoginRegister import LogRegWidget
 import client.UIPackages.Widgets.Tabs as Tabs
-import client.UIPackages.Widgets.ToolBar as ToolMenus
+from client.UIPackages.Widgets.ToolBar import ToolBar
 from client.UIPackages.Widgets.Boxes import SingleTweetBox, SingleCommentBox
 from client.UIPackages.PopupWindow import popBox
 
@@ -21,9 +21,9 @@ class BaseUIApp(QMainWindow):
         self.main_layout = QGridLayout(self.central_widget)
         self.setCentralWidget(self.central_widget)
 
-    def _setupMainUI(self):
+    def initiateMainUI(self):
         self._setMainTabWidget()
-        self._initiateToolBar()
+        self.setToolBar()
 
     def _setMainTabWidget(self):
         self.main_tab_widget = QTabWidget(self)
@@ -33,40 +33,31 @@ class BaseUIApp(QMainWindow):
         self.main_tab_widget.setTabsClosable(True)
         self.main_tab_widget.tabCloseRequested.connect(self.closeTab)
 
-    def setMainTabs(self):
-        self._setHomeTab()
-        self._setSearchTab()
-        self._setProfileTab()
-
     def closeTab(self, currentIndex):
-        current_widget = self.main_tab_widget.widget(currentIndex)
+        current_tab = self.main_tab_widget.widget(currentIndex)
+        print(f"deleting {current_tab}")
         self.main_tab_widget.removeTab(currentIndex)
-        current_widget.deleteLater()
+        current_tab.deleteLater()
+        current_tab.setParent(None)
+        del current_tab
 
-    def _setHomeTab(self):
-        self.home_tab = Tabs.HomeTab()
-        self.main_tab_widget.addTab(self.home_tab, "")
+    def setHomeTab(self, index: int = 0):
+        self.home_tab = Tabs.HomeTab(self)
+        self.main_tab_widget.insertTab(index, self.home_tab, "")
         self.main_tab_widget.setTabText(self.main_tab_widget.indexOf(self.home_tab), "Home")
 
-    def _setSearchTab(self):
+    def setSearchTab(self, index: int = 1):
         self.search_tab = Tabs.SearchTab()
-        self.main_tab_widget.addTab(self.search_tab, "")
+        self.main_tab_widget.insertTab(index, self.search_tab, "")
         self.main_tab_widget.setTabText(self.main_tab_widget.indexOf(self.search_tab), "Search")
 
-    def _setProfileTab(self):
+    def setProfileTab(self, index: int = 2):
         self.profile_tab = Tabs.ProfileTab()
-        self.main_tab_widget.addTab(self.profile_tab, "")
+        self.main_tab_widget.insertTab(index, self.profile_tab, "")
         self.main_tab_widget.setTabText(self.main_tab_widget.indexOf(self.profile_tab), "Your Profile")
 
-    def _initiateToolBar(self):
-        self.tool_bar = QMenuBar(self)
-        self.tool_bar.setGeometry(QtCore.QRect(0, 0, 800, 22))
-        self.setMenuBar(self.tool_bar)
-
-        self.action_menu = ToolMenus.ToolBarMenu(self.tool_bar)
-        self.status_bar = QStatusBar(self)
-        self.setStatusBar(self.status_bar)
-        self.tool_bar.addAction(self.action_menu.menuAction())
+    def setToolBar(self):
+        self.tool_bar = ToolBar(self)
 
 
 class App(BaseUIApp, BaseBackendApp):
@@ -88,31 +79,85 @@ class App(BaseUIApp, BaseBackendApp):
                                self.logreg_widget.log_pass_field.text())
         )
 
+    def deleteIntro(self):
+        self.logreg_widget.deleteLater()
+        del self.logreg_widget
+
     def initiateMainEnv(self):
-        self.deleteLogReqWindow()
+        self.deleteIntro()
         self.req_handler.setUserInfo(self.user_info)
-        self._setupMainUI()
-        self.setMainTabs()
-        self.addHeaderToHomeTab()
-        self.addHeaderToProfileTab()
+        self.initiateMainUI()
+        self.setTabs()
         self.reload()
 
-    def addHeaderToProfileTab(self):
-        self.profile_tab.addProfileInfoHeader(self.user_info)
+    def setToolBar(self):
+        super(App, self).setToolBar()
+        self.tool_bar.reload_current.triggered.connect(
+            lambda: self.reloadTab(self.main_tab_widget.currentWidget())
+        )
+        self.tool_bar.reload_all.triggered.connect(
+            self.reload
+        )
+        self.tool_bar.close_current.triggered.connect(
+            lambda: self.closeTab(self.main_tab_widget.currentIndex())
+        )
+        self.tool_bar.home_tab_opener.triggered.connect(
+            self.checkHomeTab
+        )
+        self.tool_bar.search_tab_opener.triggered.connect(
+            self.checkSearchTab
+        )
+        self.tool_bar.profile_tab_opener.triggered.connect(
+            self.checkProfileTab
+        )
 
-    def addHeaderToHomeTab(self):
+    def setTabs(self):
+        self.setHomeTab()
+        self.setSearchTab()
+        self.setProfileTab()
+
+    def setHomeTab(self, index: int = 0):
+        super(App, self).setHomeTab()
         self.home_tab.addWriteTweetHeader(self.user_info[USERNAME])
         self.home_tab.main_env.header.send_button.clicked.connect(
             lambda: self.writeNewTweet(self.home_tab.main_env.header.item_text_field)
         )
 
-    def deleteLogReqWindow(self):
-        self.logreg_widget.deleteLater()
-        del self.logreg_widget
+    def checkHomeTab(self):
+        try:
+            self.main_tab_widget.setCurrentWidget(self.home_tab)
+        except:
+            self.setHomeTab()
+            self.reloadTab(self.home_tab)
+            self.main_tab_widget.setCurrentWidget(self.home_tab)
+
+    def setSearchTab(self, index: int = 1):
+        super(App, self).setSearchTab()
+        # TODO complete search tab
+
+    def checkSearchTab(self):
+        try:
+            self.main_tab_widget.setCurrentWidget(self.search_tab)
+        except:
+            self.setSearchTab()
+            self.reloadTab(self.search_tab)
+            self.main_tab_widget.setCurrentWidget(self.search_tab)
+
+    def setProfileTab(self, index: int = 2):
+        super(App, self).setProfileTab()
+        self.profile_tab.addProfileInfoHeader(self.user_info)
+
+    def checkProfileTab(self):
+        try:
+            self.main_tab_widget.setCurrentWidget(self.profile_tab)
+        except:
+            self.setProfileTab()
+            self.reloadTab(self.profile_tab)
+            self.main_tab_widget.setCurrentWidget(self.profile_tab)
 
     def reload(self):
-        self.reloadTab(self.home_tab)
-        self.reloadTab(self.profile_tab)
+        for tab_index in range(self.main_tab_widget.count()):
+            self.reloadTab(self.main_tab_widget.widget(tab_index))
 
     def reloadTab(self, tab: QWidget):
         if isinstance(tab, Tabs.SearchTab):
@@ -120,16 +165,16 @@ class App(BaseUIApp, BaseBackendApp):
         elif isinstance(tab, Tabs.CommentTab):
             self.reloadCommentTab(tab)
         elif isinstance(tab, Tabs.HomeTab):
-            self.reloadTweetTab(tab, self.req_handler.getAllTweets())
+            self.reloadTweetyTab(tab, self.req_handler.getAllTweets())
         elif isinstance(tab, Tabs.ProfileTab):
-            self.reloadTweetTab(tab, self.req_handler.userTweets(self.user_info[USER_ID]))
+            self.reloadTweetyTab(tab, self.req_handler.userTweets(self.user_info[USER_ID]))
         elif isinstance(tab, Tabs.CommentTab):
             self.reloadCommentTab(tab)
 
     def reloadSearchTab(self, tab: Tabs.SearchTab):  # TODO
-        pass
+        tab.search_field.clear()
 
-    def reloadTweetTab(self, tab: Tabs.MultiItemTab, all_tweets: list[dict]):
+    def reloadTweetyTab(self, tab: Tabs.MultiItemTab, all_tweets: list[dict]):
         tab.clear()
         for tweet_info in all_tweets:
             new_tweet = SingleTweetBox(tab.main_env, tweet_info)
@@ -167,10 +212,11 @@ class App(BaseUIApp, BaseBackendApp):
                 new_tab.write_comment_header.item_text_field,
                 tweet_info[TWEET_ID])
         )
-        self.main_tab_widget.addTab(new_tab, "")
+        self.main_tab_widget.insertTab(self.main_tab_widget.currentIndex() + 1, new_tab, "")
         self.main_tab_widget.setTabText(self.main_tab_widget.indexOf(new_tab), "Comments")
         self.main_tab_widget.setCurrentWidget(new_tab)
         self.reloadCommentTab(new_tab)
+        self.setTweetButtons(new_tab.tweet_header)
 
     @staticmethod
     def appendItemToTab(tab: Tabs.MultiItemTab, item: QWidget):
@@ -249,4 +295,5 @@ if __name__ == "__main__":
     window = App(port=9990)
     window.show()
 
-    sys.exit(qt_app.exec_())
+    qt_app.exec_()
+    sys.exit()

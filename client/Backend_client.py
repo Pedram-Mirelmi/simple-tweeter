@@ -1,5 +1,5 @@
-from packages.RH_client import RequestHandler
-from keywords import *
+from client.BackendPackages.RH_client import RequestHandler
+from client.BackendPackages.ClientKeywords import *
 
 
 def getValidIndex(maximum: int, message: str):
@@ -109,7 +109,7 @@ class App:
             print(f'{index + 1}) {tweet[USERNAME]} on '
                   f'"{tweet[CREATED_AT]}" wrote:\n'
                   f'{tweet[TWEET_TEXT]}\n'
-                  f'liked by {tweet[LIKES]} people\n')
+                  f'liked by {tweet[TWEETS_LIKES]} people\n')
 
     def enterApp(self) -> None:
         choice = input('0 to login, 1 to register, 2 to exit: ')

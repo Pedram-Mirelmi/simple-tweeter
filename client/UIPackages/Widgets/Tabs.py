@@ -36,8 +36,8 @@ class SearchTab(QScrollArea):
 
 
 class MultiItemTab(QWidget):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, mother_area: QWidget = None):
+        super().__init__(mother_area)
         self.grid = QGridLayout(self)
         self.main_env = MultiTweetBox(self)
         self.grid.addWidget(self.main_env, 0, 0, 1, 1)
@@ -57,8 +57,11 @@ class MultiItemTab(QWidget):
     def __del__(self):
         self.all_items: list[QWidget]
         for item in self.all_items:
-            item.deleteLater()
-            del item
+            try:
+                item.deleteLater()
+                del item
+            except:
+                pass
 
 
 class CommentTab(MultiItemTab):
@@ -83,8 +86,8 @@ class CommentTab(MultiItemTab):
 
 
 class HomeTab(MultiItemTab):
-    def __init__(self):
-        super(HomeTab, self).__init__()
+    def __init__(self, mother_are: QWidget):
+        super(HomeTab, self).__init__(mother_are)
 
     def addWriteTweetHeader(self, username: str):
         header = WriteItemHeader(self.main_env.container, 'Tweet')
