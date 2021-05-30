@@ -117,8 +117,7 @@ class App(BaseUIApp, BaseBackendApp):
     def reloadTab(self, tab: QWidget):
         if isinstance(tab, Tabs.SearchTab):
             self.reloadSearchTab(tab)
-            return
-        if isinstance(tab, Tabs.CommentTab):
+        elif isinstance(tab, Tabs.CommentTab):
             self.reloadCommentTab(tab)
         elif isinstance(tab, Tabs.HomeTab):
             self.reloadTweetTab(tab, self.req_handler.getAllTweets())
