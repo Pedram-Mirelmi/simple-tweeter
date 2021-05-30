@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QPushButton, QWidget, QLineEdit, QListView, QLabel, 
 
 from client.BackendPackages import ClientKeywords
 from .ManyTweet import MultiTweetBox
-from .Boxes import SingleTweetBox
+from .Boxes import SingleTweetBox, SingleCommentBox
 from .Headers import ProfileInfoHeader, WriteItemHeader
 
 
@@ -44,7 +44,7 @@ class MultiItemTab(QWidget):
         self.all_items = []
 
     def clear(self):
-        self.all_items: list[SingleTweetBox]
+        self.all_items: list[SingleCommentBox]
         while self.all_items:
             try:
                 tweet = self.all_items.pop()
@@ -59,6 +59,27 @@ class MultiItemTab(QWidget):
         for item in self.all_items:
             item.deleteLater()
             del item
+
+
+class CommentTab(MultiItemTab):
+    def __init__(self, tweet_info: dict[str, str], username: str):
+        super().__init__()
+        self.setTweetHeader(tweet_info)
+        self.setWriteCommentHeader(username)
+
+    def clear(self):
+        super(CommentTab, self).clear()
+        self.main_env.row_index = 2
+
+    def setTweetHeader(self, tweet_info: dict[str, str]):
+        self.tweet_header = SingleTweetBox(self.main_env, tweet_info)
+        self.main_env.setHeader(self.tweet_header)
+
+    def setWriteCommentHeader(self, username: str):
+        self.write_comment_header = WriteItemHeader(self, 'Comment')
+        self.write_comment_header.initiateBox(username)
+        self.main_env.container.grid.addWidget(self.write_comment_header, self.main_env.row_index, 0, 1, 1)
+        self.main_env.row_index += 1
 
 
 class HomeTab(MultiItemTab):
