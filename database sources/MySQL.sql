@@ -1,3 +1,4 @@
+DROP DATABASE tweeter;
 CREATE DATABASE tweeter;
 USE tweeter;
 CREATE TABLE users
@@ -6,7 +7,22 @@ CREATE TABLE users
     username            VARCHAR(200) UNIQUE NOT NULL,
     password            VARCHAR(200) NOT NULL ,
     name                VARCHAR(200),
-    create_date         DATE DEFAULT(NOW())
+    email               VARCHAR(127),
+    gender              CHAR(1),
+    birthday            DATE,
+    created_at          DATE DEFAULT(NOW())
+);
+
+
+CREATE TABLE follow
+(
+    following_id        INT UNSIGNED NOT NULL ,
+    followed_id         INT UNSIGNED NOT NULL ,
+    FOREIGN KEY (following_id) REFERENCES users(user_id)
+        ON DELETE CASCADE ,
+    FOREIGN KEY (followed_id) REFERENCES users(user_id)
+        ON DELETE CASCADE ,
+    PRIMARY KEY (following_id, followed_id)
 );
 
 
@@ -19,7 +35,7 @@ CREATE TABLE tweets
     FOREIGN KEY(user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
-drop table tweets_likes;
+# drop table tweets_likes;
 
 CREATE TABLE tweets_likes
 (
@@ -45,7 +61,7 @@ CREATE TABLE comments
         ON DELETE CASCADE
 );
 
-drop table comments_likes;
+# drop table comments_likes;
 CREATE TABLE comments_likes
 (
     user_id         INT UNSIGNED NOT NULL ,
@@ -57,7 +73,23 @@ CREATE TABLE comments_likes
     PRIMARY KEY (user_id, comment_id)
 );
 
-drop VIEW comments_show;
+CREATE VIEW users_show AS
+SELECT
+    u.user_id,
+    u.username,
+    u.name,
+    COUNT(followers.following_id) AS "follower",
+    COUNT(followings.followed_id) AS "followings"
+FROM users u
+    LEFT JOIN follow followers
+        ON u.user_id = followers.followed_id
+    LEFT JOIN follow followings
+        ON u.user_id = followings.following_id
+GROUP BY u.user_id
+ORDER BY u.user_id DESC;
+
+
+# drop VIEW comments_show;
 CREATE VIEW comments_show AS
 SELECT
        t.tweet_id,
@@ -76,8 +108,7 @@ FROM comments c
 GROUP BY c.comment_id
 ORDER BY c.comment_id DESC;
 
-
-drop view tweets_show;
+# drop view tweets_show;
 
 CREATE VIEW tweets_show AS
 SELECT
@@ -97,4 +128,6 @@ FROM tweets t
             ON t.tweet_id = c.tweet_id
 GROUP BY t.tweet_id
 ORDER BY t.tweet_id DESC;
+
+# DELETE FROM users WHERE user_id > 4;
 
