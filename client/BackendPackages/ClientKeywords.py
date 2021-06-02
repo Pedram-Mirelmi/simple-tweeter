@@ -2,6 +2,12 @@ MARK_SIGN, TRUE, FALSE = "✔", "TRUE", "FALSE"
 USERNAME, PASSWORD, NAME = "username", "password", "name"
 USER_ID = "user_id"
 CREATED_AT = "created_at"
+EMAIL = "email"
+GENDER = "gender"
+BIRTHDAY = "birthday"
+PROFILE_INTO = "profile_info"
+BIO = 'bio'
+PHONE = "phone"
 # Necessary table names
 TWEETS = 'tweets'
 USERS = 'users'
@@ -29,6 +35,7 @@ COMMENT_ID = 'comment_id'
 LIKE_TWEET = 'like_tweet'
 LIKE_COMMENT = 'like_comment'
 GET_COMMENTS = 'get_comments'
+UPDATE_PROFILE = 'update_profile'
 
 TWEETS_LIKES = 'tweets_likes'
 COMMENTS_LIKES = 'comments_likes'

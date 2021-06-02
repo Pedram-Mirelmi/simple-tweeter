@@ -22,6 +22,7 @@ class SingleCommentContainer(QWidget):
 
     def __setupUsername(self):
         self.username_field = QPushButton(self)
+        self.username_field.setFlat(True)
         self.gridLayout.addWidget(self.username_field, 0, 0, 1, 1)
 
     def __setupTimeField(self):

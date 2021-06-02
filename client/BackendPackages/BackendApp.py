@@ -5,7 +5,7 @@ from .RH_client import RequestHandler
 
 
 class BaseBackendApp:
-    def __init__(self, port: int = 9990, max_req_len: int = 4):
+    def __init__(self, port: int = 9999, max_req_len: int = 4):
         self.user_info = {USERNAME: str(),
                           PASSWORD: str()}
         self.req_handler = RequestHandler(self.user_info, port, max_req_len)

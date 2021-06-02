@@ -20,6 +20,7 @@ class ToolBar(QMenuBar):
         self.search_tab_opener = QtWidgets.QAction(self.main_window)
         self.profile_tab_opener = QtWidgets.QAction(self.main_window)
         self.close_current = QtWidgets.QAction(self.main_window)
+        self.setting_action = QtWidgets.QAction(self.main_window)
         self.exit = QtWidgets.QAction(self.main_window)
         self._addActions()
 
@@ -30,6 +31,7 @@ class ToolBar(QMenuBar):
         self.tabs_menu.addAction(self.reload_current)
         self.tabs_menu.addAction(self.reload_all)
         self.tabs_menu.addAction(self.close_current)
+        self.tabs_menu.addAction(self.setting_action)
         self.tabs_menu.addAction(self.exit)
         self.addAction(self.tabs_menu.menuAction())
 
@@ -53,6 +55,9 @@ class ToolBar(QMenuBar):
         self.close_current.setText("Close Current")
         self.close_current.setStatusTip("Close Current Tab")
         self.close_current.setShortcut("Ctrl+W")
+        self.setting_action.setText("Settings")
+        self.setting_action.setStatusTip("Open your profile settings window")
+        self.setting_action.setShortcut("Ctrl+Shift+S")
         self.exit.setText("Exit")
         self.exit.setStatusTip("Exit programm")
 

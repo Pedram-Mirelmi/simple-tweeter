@@ -5,7 +5,7 @@ import json
 
 
 class Server:
-    def __init__(self, port_num: int = 9990, max_req_size: int = 4):
+    def __init__(self, port_num: int = 9999, max_req_size: int = 4):
         self.port = port_num
         self.max_req_size = max_req_size
         self.req_handler = RequestHandler()
@@ -22,7 +22,7 @@ class Server:
             new_connection.start()
 
     def __talkToClient(self, sock_obj: socket.socket) -> None:
-        try:
+        # try:
             while True:
                 req_dict = self.__get_req(sock_obj)
                 if not req_dict:
@@ -30,8 +30,8 @@ class Server:
                     break
                 res_dict = self.req_handler.handle(req_dict)
                 self.__send_res(sock_obj, res_dict)
-        except Exception as e:
-            print(f'connection crashed! {e}')
+        # except Exception as e:
+        #     print(f'connection crashed! {e}')
             sock_obj.close()
 
     def __get_req(self, sock_obj: socket.socket) -> dict:
@@ -46,5 +46,5 @@ class Server:
 
 
 if __name__ == '__main__':
-    server = Server(port_num=9990)
+    server = Server()
     server.runServer()

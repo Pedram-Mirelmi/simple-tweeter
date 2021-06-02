@@ -1,6 +1,11 @@
+import json
+
 from client.BackendPackages.ClientKeywords import *
-from mysql.connector import Error, connect
-from typing import Union
+from mysql.connector import Error as DBError, connect
+from typing import Union, Any
+
+
+# from typing import Iterator
 
 
 class RequestHandler:
@@ -12,6 +17,7 @@ class RequestHandler:
         self.cursor = self.connection.cursor(dictionary=True)
 
     def handle(self, request: dict) -> Union[dict, list]:
+        self.cursor.reset(True)
         if request[REQUEST_TYPE] == REGISTER:
             return self._register(request)
         if request[REQUEST_TYPE] == LOGIN:
@@ -30,16 +36,29 @@ class RequestHandler:
             return self._userTweets(request)
         if request[REQUEST_TYPE] == LIKE_COMMENT:
             return self._likeComment(request)
+        if request[REQUEST_TYPE] == UPDATE_PROFILE:
+            return self._updateProfile(request)
         else:
             print(request)
             raise Exception(f'Invalid request: {request}')
+
+    def _updateProfile(self, request: dict[str, Union[str, dict[str, str]]]) -> dict[str, str]:
+        print(json.dumps(request, indent=4))
+        try:
+
+            self.__UPDATE(USERS, request[PROFILE_INTO].items(), USER_ID, request[USER_ID])
+            return {OUTCOME: True}
+        except DBError as e:
+            return {OUTCOME: False, STATUS: str(e)}
+        except Exception as e:
+            return {OUTCOME: False, STATUS: f"something went wrong: {e}"}
 
     def _newComment(self, request: dict) -> dict:
         try:
             self.__INSERT(COMMENTS, (TWEET_ID, USER_ID, COMMENT_TEXT),
                           (request[TWEET_ID], request[USER_ID], request[COMMENT_TEXT]))
             return {OUTCOME: True}
-        except Error as e:
+        except DBError as e:
             return {OUTCOME: False, STATUS: str(e)}
         except Exception as e:
             return {OUTCOME: False, STATUS: f"something went wrong: {e}"}
@@ -55,7 +74,7 @@ class RequestHandler:
             self.__INSERT(COMMENTS_LIKES, (USER_ID, COMMENT_ID),
                           (request[USER_ID], request[COMMENT_ID]))
             return {OUTCOME: True}
-        except Error as e:
+        except DBError as e:
             return {OUTCOME: False, STATUS: str(e)}
         except Exception as e:
             return {OUTCOME: False, STATUS: f'Something went wrong: {e}'}
@@ -65,7 +84,7 @@ class RequestHandler:
             self.__INSERT(TWEETS_LIKES, (USER_ID, TWEET_ID),
                           (request[USER_ID], request[TWEET_ID]))
             return {OUTCOME: True}
-        except Error as e:
+        except DBError as e:
             return {OUTCOME: False, STATUS: str(e)}
         except Exception as e:
             return {OUTCOME: False, STATUS: f'Something went wrong: {e}'}
@@ -76,7 +95,7 @@ class RequestHandler:
                           ('tweet_text', 'user_id'),
                           (request[TWEET_TEXT], request[USER_ID]))
             return {OUTCOME: True}
-        except Error as e:
+        except DBError as e:
             return {OUTCOME: False, STATUS: str(e)}
 
     def _allTweets(self) -> list:
@@ -97,7 +116,7 @@ class RequestHandler:
             response = self.cursor.fetchall()[0]
             response[OUTCOME] = True
             return response
-        except Error as e:
+        except DBError as e:
             return {OUTCOME: False, STATUS: str(e)}
 
     def _login(self, request: dict) -> dict:
@@ -109,30 +128,25 @@ class RequestHandler:
                 return {OUTCOME: False, STATUS: E1}
             res_dict[OUTCOME] = True
             return res_dict
-        except Error as db_error:
+        except DBError as db_error:
             return {OUTCOME: False, STATUS: str(db_error)}
         except IndexError:
             return {OUTCOME: False, STATUS: E2}
 
     def __INSERT(self, tablename: str, columns: tuple, values: tuple):
+
         self.cursor.execute(f"{INSERT} {INTO} {tablename} ({', '.join(map(str, columns))}) "
                             f"{VALUES} {values};")
         self.connection.commit()
 
-    def __UPDATEAddOne(self, table: str, column: str, id_field: str, id_value: int) -> dict:
-        self.cursor.execute(f'{UPDATE} {table} {SET} {column} = {column} + 1 '
-                            f'{WHERE} {id_field} = {id_value};')
+    def __UPDATE(self, table: str, column_value_pair_list, id_field: str, id_value: Any) -> None:
+        print(f"{UPDATE} {table} {SET} \n     "
+                            + ', '.join([f'{column} = {json.dumps(value)}' for column, value in column_value_pair_list]) +
+                            f"{WHERE} {id_field} = {id_value};")
+        self.cursor.execute(f"{UPDATE} {table} {SET} \n     "
+                            + ', '.join([f'{column} = {json.dumps(value)}' for column, value in column_value_pair_list]) +
+                            f" {WHERE} {id_field} = {id_value};")
         self.connection.commit()
-        return {OUTCOME: True}
-
-    def __UPDATESubOne(self, table: str, column: str, id_field: str, id_value: int) -> dict:
-        try:
-            self.cursor.execute(f'{UPDATE} {table} {SET} {column} = {column} - 1 '
-                                f'{WHERE} {id_field} = {id_value};')
-            self.connection.commit()
-            return {OUTCOME: True}
-        except Error as e:
-            return {OUTCOME: False, STATUS: str(e)}
 
     def __del__(self):
         self.connection.commit()

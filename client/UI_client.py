@@ -11,6 +11,7 @@ import client.UIPackages.Widgets.Tabs as Tabs
 from client.UIPackages.Widgets.ToolBar import ToolBar
 from client.UIPackages.Widgets.Boxes import SingleTweetBox, SingleCommentBox
 from client.UIPackages.PopupWindow import popBox
+from client.UIPackages.SettingsWindow import SettingsWindow
 
 
 class BaseUIApp(QMainWindow):
@@ -67,6 +68,7 @@ class App(BaseUIApp, BaseBackendApp):
         self.logreg_widget = LogRegWidget(self, self.req_handler)
         self.main_layout.addWidget(self.logreg_widget, 0, 0, 1, 1)
         self.setIntro()
+        self.settings_window = SettingsWindow(self.req_handler, self.user_info)
 
     def setIntro(self):
         self.logreg_widget.register_button.clicked.connect(
@@ -110,6 +112,13 @@ class App(BaseUIApp, BaseBackendApp):
         self.tool_bar.profile_tab_opener.triggered.connect(
             self.checkProfileTab
         )
+        self.tool_bar.setting_action.triggered.connect(
+            self.openSettingsWindow
+        )
+
+    def openSettingsWindow(self):
+        self.settings_window.initiateFields(self.user_info)
+        self.settings_window.show()
 
     def setTabs(self):
         self.setHomeTab()
@@ -246,6 +255,7 @@ class App(BaseUIApp, BaseBackendApp):
         if response[OUTCOME]:
             popBox(title=SUCCESS, message='You successfully logged in!',
                    Qicon=QMessageBox.Information, std_buttons=[QMessageBox.Ok])
+            print(f"response:{response}")
             self.user_info = response
             self.initiateMainEnv()
         else:
@@ -292,7 +302,7 @@ class App(BaseUIApp, BaseBackendApp):
 if __name__ == "__main__":
     qt_app = QApplication(sys.argv)
 
-    window = App(port=9990)
+    window = App()
     window.show()
 
     qt_app.exec_()
