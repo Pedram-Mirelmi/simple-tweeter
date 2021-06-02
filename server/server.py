@@ -5,7 +5,7 @@ import json
 
 
 class Server:
-    def __init__(self, port_num: int = 9999, max_req_size: int = 4):
+    def __init__(self, port_num: int = 9999, max_req_size: int = 5):
         self.port = port_num
         self.max_req_size = max_req_size
         self.req_handler = RequestHandler()

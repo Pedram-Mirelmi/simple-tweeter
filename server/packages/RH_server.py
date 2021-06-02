@@ -38,9 +38,19 @@ class RequestHandler:
             return self._likeComment(request)
         if request[REQUEST_TYPE] == UPDATE_PROFILE:
             return self._updateProfile(request)
+        if request[REQUEST_TYPE] == TWEET_INFO:
+            return self._getTweetInfo(request)
         else:
             print(request)
             raise Exception(f'Invalid request: {request}')
+
+    def _getTweetInfo(self, request: dict[str, int]):
+        self.cursor.execute(f"{SELECT} * {FROM} tweets_show "
+                            f"{WHERE} {TWEET_ID} = {request[TWEET_ID]}")
+        response = self.cursor.fetchall()[0]
+        response[OUTCOME] = True
+
+        return response
 
     def _updateProfile(self, request: dict[str, Union[str, dict[str, str]]]) -> dict[str, str]:
         print(json.dumps(request, indent=4))
@@ -115,6 +125,7 @@ class RequestHandler:
                                 f"username='{request[USERNAME]}';")
             response = self.cursor.fetchall()[0]
             response[OUTCOME] = True
+            response.update(self._getUserInfo(response[USER_ID]))
             return response
         except DBError as e:
             return {OUTCOME: False, STATUS: str(e)}
@@ -123,15 +134,21 @@ class RequestHandler:
         try:
             self.cursor.execute(f"{SELECT} * {FROM} users {WHERE} "
                                 f"username='{request[USERNAME]}'")
-            res_dict = self.cursor.fetchall()[0]
-            if res_dict[PASSWORD] != request[PASSWORD]:
+            response = self.cursor.fetchall()[0]
+            if response[PASSWORD] != request[PASSWORD]:
                 return {OUTCOME: False, STATUS: E1}
-            res_dict[OUTCOME] = True
-            return res_dict
+            response[OUTCOME] = True
+            response.update(self._getUserInfo(response[USER_ID]))
+            return response
         except DBError as db_error:
             return {OUTCOME: False, STATUS: str(db_error)}
         except IndexError:
             return {OUTCOME: False, STATUS: E2}
+
+    def _getUserInfo(self, user_id: int):
+        self.cursor.execute(f"{SELECT} * {FROM} users_show "
+                            f"{WHERE} user_id = {user_id} ")
+        return self.cursor.fetchall()[0]
 
     def __INSERT(self, tablename: str, columns: tuple, values: tuple):
 

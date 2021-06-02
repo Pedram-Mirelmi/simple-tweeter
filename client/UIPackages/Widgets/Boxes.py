@@ -66,9 +66,12 @@ class SingleCommentBox(QScrollArea):
         self.setMinimumSize(QtCore.QSize(450, 250))
         self.setMaximumSize(QtCore.QSize(450, 250))
         self.setWidgetResizable(True)
+        self.setBox()
+        self.initiateTexts(info)
+
+    def setBox(self):
         self.box = SingleCommentContainer(self)
         self.setWidget(self.box)
-        self.initiateTexts(info)
 
     def initiateTexts(self, comment_info: dict[str, Union[str, int]]):
         self.box.username_field.setText(comment_info[USERNAME])
@@ -80,20 +83,19 @@ class SingleCommentBox(QScrollArea):
 class SingleTweetBox(SingleCommentBox):
     def __init__(self, mother_area: QWidget = None, info: dict[str, str] = None):
         SingleCommentBox.__init__(self, mother_area, info)
-        self.box.deleteLater()
-        del self.box
-        self.box = SingleTweetContainer(self)
         self.setWidget(self.box)
         self.initiateTexts(info)
-        self.box.comment_button.setText(f"Comments({info[COMMENTS]})")
 
+    def setBox(self):
+        self.box = SingleTweetContainer(self)
+        self.setWidget(self.box)
 
     def initiateTexts(self, tweet_info: dict[str, Union[str, int]]):
         self.box.username_field.setText(tweet_info[USERNAME])
         self.box.time_label.setText(tweet_info[CREATED_AT])
         self.box.tweet_text_field.setText(tweet_info[TWEET_TEXT])
         self.box.like_button.setText(f"Like({tweet_info[TWEETS_LIKES]})")
-
+        self.box.comment_button.setText(f"Comments({tweet_info[COMMENTS]})")
 
 if __name__ == "__main__":
     class Window(QWidget):

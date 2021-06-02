@@ -3,7 +3,7 @@ from typing import Union
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QDate
 # from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QWidget, QLineEdit
+from PyQt5.QtWidgets import QWidget, QLineEdit, QMainWindow
 from client.BackendPackages.RH_client import RequestHandler
 from client.BackendPackages.ClientKeywords import *
 from client.UIPackages.PopupWindow import popBox
@@ -11,17 +11,18 @@ import re
 from datetime import datetime
 
 
-
 def isEmail(email_address: str):
     pattern = r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
     return bool(re.match(pattern, email_address))
 
 
-class SettingsWindowUI(QWidget):
+class SettingsWindowUI(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setFixedSize(432, 494)
-        self.gridLayout = QtWidgets.QGridLayout(self)
+        self.central_widget = QWidget(self)
+        self.setCentralWidget(self.central_widget)
+        self.gridLayout = QtWidgets.QGridLayout(self.central_widget)
         self.setFields()
         self.addSpacers()
         self.setButtons()
@@ -29,35 +30,35 @@ class SettingsWindowUI(QWidget):
         self.initiateTexts()
 
     def setFields(self):
-        self.username_label = QtWidgets.QLabel(self)
-        self.username_field = QtWidgets.QLineEdit(self)
+        self.username_label = QtWidgets.QLabel(self.central_widget)
+        self.username_field = QtWidgets.QLineEdit(self.central_widget)
         # self.username_field.setFixedSize(306, 25)
-        self.name_label = QtWidgets.QLabel(self)
-        self.name_field = QtWidgets.QLineEdit(self)
+        self.name_label = QtWidgets.QLabel(self.central_widget)
+        self.name_field = QtWidgets.QLineEdit(self.central_widget)
         # self.name_field.setFixedSize(306, 25)
-        self.password_label = QtWidgets.QLabel(self)
-        self.password_field = QtWidgets.QLineEdit(self)
+        self.password_label = QtWidgets.QLabel(self.central_widget)
+        self.password_field = QtWidgets.QLineEdit(self.central_widget)
         # self.password_field.setFixedSize(306, 25)
-        self.email_label = QtWidgets.QLabel(self)
-        self.email_field = QtWidgets.QLineEdit(self)
+        self.email_label = QtWidgets.QLabel(self.central_widget)
+        self.email_field = QtWidgets.QLineEdit(self.central_widget)
         # self.email_field.setFixedSize(306, 25)
-        self.phone_label = QtWidgets.QLabel(self)
-        self.phone_field = QtWidgets.QLineEdit(self)
+        self.phone_label = QtWidgets.QLabel(self.central_widget)
+        self.phone_field = QtWidgets.QLineEdit(self.central_widget)
         # self.phone_field.setFixedSize(170, 25)
-        self.gender_label = QtWidgets.QLabel(self)
-        self.male_button = QtWidgets.QRadioButton(self)
+        self.gender_label = QtWidgets.QLabel(self.central_widget)
+        self.male_button = QtWidgets.QRadioButton(self.central_widget)
         self.male_button.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        self.female_button = QtWidgets.QRadioButton(self)
+        self.female_button = QtWidgets.QRadioButton(self.central_widget)
         self.female_button.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        self.birthday_label = QtWidgets.QLabel(self)
-        self.birthday_field = QtWidgets.QDateEdit(self)
+        self.birthday_label = QtWidgets.QLabel(self.central_widget)
+        self.birthday_field = QtWidgets.QDateEdit(self.central_widget)
         self.birthday_field.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.birthday_field.setDisplayFormat("yyyy-M-dd")
-        self.bio_label = QtWidgets.QLabel(self)
-        self.bio_field = QtWidgets.QTextEdit(self)
+        self.bio_label = QtWidgets.QLabel(self.central_widget)
+        self.bio_field = QtWidgets.QTextEdit(self.central_widget)
 
     def setButtons(self):
-        self.save_button = QtWidgets.QPushButton(self)
+        self.save_button = QtWidgets.QPushButton(self.central_widget)
         self.save_button.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         save_icon = QtGui.QIcon()
         save_icon.addPixmap(QtGui.QPixmap("../../../../../Pictures/checkIc.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -119,20 +120,19 @@ class SettingsWindow(SettingsWindowUI):
             self.saveButtonClicked
         )
 
-
     def saveButtonClicked(self):
         if isEmail(self.email_field.text()) or not self.email_field.text().strip():
             response = self.req_handler.updateProfile(self.getNewProfileInfo())
             if response[OUTCOME]:
                 popBox(SUCCESS, "Your Changes successfully saved!",
                        QtWidgets.QMessageBox.Information, [QtWidgets.QMessageBox.Ok])
+                self.user_info.update(self.getNewProfileInfo())
             else:
                 popBox(FAILED, response[STATUS], QtWidgets.QMessageBox.Critical,
                        [QtWidgets.QMessageBox.Ok])
         else:
             popBox(FAILED, "Invalid email address", QtWidgets.QMessageBox.Critical,
                    [QtWidgets.QMessageBox.Ok])
-
 
     def getNewProfileInfo(self):
         return {

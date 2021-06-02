@@ -18,11 +18,7 @@ class WriteItemHeader(QGroupBox):
         self.send_button = QPushButton(self)
         self.gridLayout.addWidget(self.send_button, 1, 0, 1, 1)
 
-    def initiateBox(self, username):
-        self.__initiateTexts(username)
-        self.__initiateTexts(username)
-
-    def __initiateTexts(self, username: str):
+    def initiateTexts(self, username: str):
         self.setTitle(f"Write {self.item_type} as '{username}':")
         self.send_button.setText("Send")
 
@@ -49,9 +45,9 @@ class ProfileInfoHeader(QGroupBox):
     def initiateTexts(self, user_info: dict[str, str]):
         self.setTitle(user_info[USERNAME])
         self.name_label.setText(user_info[NAME])
-        self.followers_label.setText("Followers")
-        self.followings_label.setText("Followings")
-        self.tweets_label.setText("Tweets")
+        self.followers_label.setText(f"Followers({user_info[FOLLOWERS]})")
+        self.followings_label.setText(f"Followings({user_info[FOLLOWINGS]})")
+        self.tweets_label.setText(f"Tweets({user_info[TWEETS]})")
 
 
 if __name__ == "__main__":

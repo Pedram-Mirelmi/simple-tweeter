@@ -5,7 +5,7 @@ from .RH_client import RequestHandler
 
 
 class BaseBackendApp:
-    def __init__(self, port: int = 9999, max_req_len: int = 4):
+    def __init__(self, port: int = 9999, max_req_len: int = 5):
         self.user_info = {USERNAME: str(),
                           PASSWORD: str()}
         self.req_handler = RequestHandler(self.user_info, port, max_req_len)
@@ -37,12 +37,14 @@ class BaseBackendApp:
         return response
 
     def _register(self, username: str, name: str, password: str) -> dict[str, str]:
-        return self.req_handler.register({REQUEST_TYPE: LOGIN,
+        return self.req_handler.register({
                                           USERNAME: username,
                                           NAME: name,
-                                          PASSWORD: password})
+                                          PASSWORD: password}
+        )
 
     def _login(self, username: str, password: str) -> dict[str, str]:
-        return self.req_handler.login({REQUEST_TYPE: LOGIN,
+        return self.req_handler.login({
                                        USERNAME: username,
-                                       PASSWORD: password})
+                                       PASSWORD: password
+        })

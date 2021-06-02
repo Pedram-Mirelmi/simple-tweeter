@@ -8,6 +8,8 @@ BIRTHDAY = "birthday"
 PROFILE_INTO = "profile_info"
 BIO = 'bio'
 PHONE = "phone"
+FOLLOWERS = "followers"
+FOLLOWINGS = "followings"
 # Necessary table names
 TWEETS = 'tweets'
 USERS = 'users'
@@ -21,6 +23,7 @@ REQUEST_TYPE = "request_type"
 OUTCOME = "outcome"
 LOGIN = 'login'
 REGISTER = 'register'
+TWEET_INFO = "tweet_info"
 STATUS = 'status'
 SUCCESS = 'SUCCESS'
 FAILED = 'FAILED'

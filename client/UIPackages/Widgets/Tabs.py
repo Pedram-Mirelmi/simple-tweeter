@@ -43,7 +43,7 @@ class MultiItemTab(QWidget):
         self.grid.addWidget(self.main_env, 0, 0, 1, 1)
         self.all_items = []
 
-    def clear(self):
+    def clearItems(self):
         self.all_items: list[SingleCommentBox]
         while self.all_items:
             try:
@@ -70,8 +70,8 @@ class CommentTab(MultiItemTab):
         self.setTweetHeader(tweet_info)
         self.setWriteCommentHeader(username)
 
-    def clear(self):
-        super(CommentTab, self).clear()
+    def clearItems(self):
+        super(CommentTab, self).clearItems()
         self.main_env.row_index = 2
 
     def setTweetHeader(self, tweet_info: dict[str, str]):
@@ -80,7 +80,7 @@ class CommentTab(MultiItemTab):
 
     def setWriteCommentHeader(self, username: str):
         self.write_comment_header = WriteItemHeader(self, 'Comment')
-        self.write_comment_header.initiateBox(username)
+        self.write_comment_header.initiateTexts(username)
         self.main_env.container.grid.addWidget(self.write_comment_header, self.main_env.row_index, 0, 1, 1)
         self.main_env.row_index += 1
 
@@ -90,9 +90,12 @@ class HomeTab(MultiItemTab):
         super(HomeTab, self).__init__(mother_are)
 
     def addWriteTweetHeader(self, username: str):
-        header = WriteItemHeader(self.main_env.container, 'Tweet')
-        header.initiateBox(username)
-        self.main_env.setHeader(header)
+        self.header = WriteItemHeader(self.main_env.container, 'Tweet')
+        self.header.initiateTexts(username)
+        self.main_env.setHeader(self.header)
+
+    def updateHeader(self, username: str):
+        self.header.setTitle(f"Write Tweet as {username}")
 
 
 class ProfileTab(MultiItemTab):
@@ -100,9 +103,12 @@ class ProfileTab(MultiItemTab):
         super().__init__()
 
     def addProfileInfoHeader(self, user_info: dict[str, str]):
-        header = ProfileInfoHeader(self.main_env.container)
-        header.initiateTexts(user_info)
-        self.main_env.setHeader(header)
+        self.header = ProfileInfoHeader(self.main_env.container)
+        self.header.initiateTexts(user_info)
+        self.main_env.setHeader(self.header)
+
+    def updateHeader(self, profile_info: dict[str, str]):
+        self.header.initiateTexts(profile_info)
 
 
 if __name__ == "__main__":
