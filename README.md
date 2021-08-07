@@ -9,6 +9,7 @@ The client UI version now has these features:
 * Like others comments
 * User profile tab (managing user's own tweets)
 * View user Settings and edit your profile details
+* Settings: to edit user's profile info
 
 
 ## UI:
