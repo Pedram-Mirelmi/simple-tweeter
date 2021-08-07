@@ -1,3 +1,8 @@
+# !!!!!!!!!!!!!!!!!!!!
+
+# This script is not used anymore (in UI version)
+
+# !!!!!!!!!!!!!!!!!!!!
 from client.BackendPackages.RH_client import RequestHandler
 from client.BackendPackages.ClientKeywords import *
 
