@@ -9,6 +9,7 @@ The client UI version now has these features:
 * Like others comments
 * User profile tab (managing user's own tweets)
 * View user Settings and edit your profile details
+* Settings: to edit user's profile info
 
 
 ## UI:
@@ -23,7 +24,7 @@ The main window contains a tab environment.
 
 ## server:
 The communication between client and server is based on socket programming and json.<br /> 
-Also i used threading so it can talk to multiple clients at the same time and if one of them crashes servers stays running. <br /> 
+* Also i used threading so it can talk to multiple clients at the same time and if one of them crashes servers stays running. <br /> 
 
 ## database:
 The database uses MYSQL DBMS and server connects to the database using sql-connector <br /> 
