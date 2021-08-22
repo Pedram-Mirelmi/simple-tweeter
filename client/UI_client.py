@@ -16,7 +16,8 @@ from client.UIPackages.SettingsWindow import SettingsWindow
 
 class BaseUIApp(QMainWindow):
     def __init__(self):
-        QMainWindow.__init__(self)
+        super(BaseUIApp, self).__init__()
+
         self.resize(821, 594)
         self.central_widget = QWidget(self)
         self.main_layout = QGridLayout(self.central_widget)
@@ -248,7 +249,7 @@ class App(BaseUIApp, BaseBackendApp):
     def likeTweet(self, tweet_id: int):
         response = self._likeTweet(tweet_id)
         if not response[OUTCOME]:
-            popBox(title=FAILED, message=f'{response[STATUS]}', Qicon=QMessageBox.Critical,
+            popBox(title=FAILED, message=f'{response[MESSAGE]}', Qicon=QMessageBox.Critical,
                    std_buttons=[QMessageBox.Ok])
         else:
             self.reload()
@@ -256,7 +257,7 @@ class App(BaseUIApp, BaseBackendApp):
     def likeComment(self, comment_id: int):
         response = self._likeComment(comment_id)
         if not response[OUTCOME]:
-            popBox(title=FAILED, message=f'{response[STATUS]}', Qicon=QMessageBox.Critical,
+            popBox(title=FAILED, message=f'{response[MESSAGE]}', Qicon=QMessageBox.Critical,
                    std_buttons=[QMessageBox.Ok])
         else:
             self.reload()
@@ -270,7 +271,7 @@ class App(BaseUIApp, BaseBackendApp):
             self.user_info.update(response)
             self.initiateMainEnv()
         else:
-            popBox(title=FAILED, message=response[STATUS],
+            popBox(title=FAILED, message=response[MESSAGE],
                    Qicon=QMessageBox.Critical, std_buttons=[QMessageBox.Ok])
 
     def register(self, username: str, name: str, password: str):
@@ -282,7 +283,7 @@ class App(BaseUIApp, BaseBackendApp):
                 self.user_info.update(response)
                 self.initiateMainEnv()
             else:
-                popBox(title=FAILED, message=response[STATUS],
+                popBox(title=FAILED, message=response[MESSAGE],
                        Qicon=QMessageBox.Critical, std_buttons=[QMessageBox.Ok])
 
     def writeNewTweet(self, tweet_text_field: QTextEdit):

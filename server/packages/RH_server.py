@@ -5,9 +5,6 @@ from mysql.connector import Error as DBError, connect
 from typing import Union, Any
 
 
-# from typing import Iterator
-
-
 class RequestHandler:
     def __init__(self):
         self.connection = connect(host='localhost',
@@ -40,9 +37,8 @@ class RequestHandler:
             return self._updateProfile(request)
         if request[REQUEST_TYPE] == TWEET_INFO:
             return self._getTweetInfo(request)
-        else:
-            print(request)
-            raise Exception(f'Invalid request: {request}')
+        print(request)
+        raise Exception(f'Invalid request: {request}')
 
     def _getTweetInfo(self, request: dict[str, int]):
         self.cursor.execute(f"{SELECT} * {FROM} tweets_show "
@@ -53,15 +49,13 @@ class RequestHandler:
         return response
 
     def _updateProfile(self, request: dict[str, Union[str, dict[str, str]]]) -> dict[str, str]:
-        print(json.dumps(request, indent=4))
         try:
-
             self.__UPDATE(USERS, request[PROFILE_INTO].items(), USER_ID, request[USER_ID])
             return {OUTCOME: True}
         except DBError as e:
-            return {OUTCOME: False, STATUS: str(e)}
+            return {OUTCOME: False, MESSAGE: str(e), ERROR_NO: e.errno}
         except Exception as e:
-            return {OUTCOME: False, STATUS: f"something went wrong: {e}"}
+            return {OUTCOME: False, MESSAGE: f"something went wrong: {e}"}
 
     def _newComment(self, request: dict) -> dict:
         try:
@@ -69,9 +63,9 @@ class RequestHandler:
                           (request[TWEET_ID], request[USER_ID], request[COMMENT_TEXT]))
             return {OUTCOME: True}
         except DBError as e:
-            return {OUTCOME: False, STATUS: str(e)}
+            return {OUTCOME: False, MESSAGE: str(e)}
         except Exception as e:
-            return {OUTCOME: False, STATUS: f"something went wrong: {e}"}
+            return {OUTCOME: False, MESSAGE: f"something went wrong: {e}"}
 
     def _getComments(self, request: dict) -> list:
         self.cursor.execute(f"{SELECT} * "
@@ -85,9 +79,9 @@ class RequestHandler:
                           (request[USER_ID], request[COMMENT_ID]))
             return {OUTCOME: True}
         except DBError as e:
-            return {OUTCOME: False, STATUS: str(e)}
+            return {OUTCOME: False, MESSAGE: str(e)}
         except Exception as e:
-            return {OUTCOME: False, STATUS: f'Something went wrong: {e}'}
+            return {OUTCOME: False, MESSAGE: f'Something went wrong: {e}'}
 
     def _likeTweet(self, request: dict) -> dict:
         try:
@@ -95,9 +89,9 @@ class RequestHandler:
                           (request[USER_ID], request[TWEET_ID]))
             return {OUTCOME: True}
         except DBError as e:
-            return {OUTCOME: False, STATUS: str(e)}
+            return {OUTCOME: False, MESSAGE: str(e)}
         except Exception as e:
-            return {OUTCOME: False, STATUS: f'Something went wrong: {e}'}
+            return {OUTCOME: False, MESSAGE: f'Something went wrong: {e}'}
 
     def _new_tweet(self, request: dict) -> dict:
         try:
@@ -106,7 +100,7 @@ class RequestHandler:
                           (request[TWEET_TEXT], request[USER_ID]))
             return {OUTCOME: True}
         except DBError as e:
-            return {OUTCOME: False, STATUS: str(e)}
+            return {OUTCOME: False, MESSAGE: str(e)}
 
     def _allTweets(self) -> list:
         self.cursor.execute(f"{SELECT} * {FROM} tweets_show;")
@@ -128,7 +122,7 @@ class RequestHandler:
             response.update(self._getUserInfo(response[USER_ID]))
             return response
         except DBError as e:
-            return {OUTCOME: False, STATUS: str(e)}
+            return {OUTCOME: False, MESSAGE: str(e)}
 
     def _login(self, request: dict) -> dict:
         try:
@@ -136,14 +130,14 @@ class RequestHandler:
                                 f"username='{request[USERNAME]}'")
             response = self.cursor.fetchall()[0]
             if response[PASSWORD] != request[PASSWORD]:
-                return {OUTCOME: False, STATUS: E1}
+                return {OUTCOME: False, MESSAGE: E1}
             response[OUTCOME] = True
             response.update(self._getUserInfo(response[USER_ID]))
             return response
         except DBError as db_error:
-            return {OUTCOME: False, STATUS: str(db_error)}
+            return {OUTCOME: False, MESSAGE: str(db_error)}
         except IndexError:
-            return {OUTCOME: False, STATUS: E2}
+            return {OUTCOME: False, MESSAGE: E2}
 
     def _getUserInfo(self, user_id: int):
         self.cursor.execute(f"{SELECT} * {FROM} users_show "
@@ -157,11 +151,9 @@ class RequestHandler:
         self.connection.commit()
 
     def __UPDATE(self, table: str, column_value_pair_list, id_field: str, id_value: Any) -> None:
-        print(f"{UPDATE} {table} {SET} \n     "
-                            + ', '.join([f'{column} = {json.dumps(value)}' for column, value in column_value_pair_list]) +
-                            f"{WHERE} {id_field} = {id_value};")
         self.cursor.execute(f"{UPDATE} {table} {SET} \n     "
-                            + ', '.join([f'{column} = {json.dumps(value)}' for column, value in column_value_pair_list]) +
+                            + ', '.join(
+                            [f'{column} = {json.dumps(value)}' for column, value in column_value_pair_list]) +
                             f" {WHERE} {id_field} = {id_value};")
         self.connection.commit()
 

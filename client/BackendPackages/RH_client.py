@@ -10,6 +10,7 @@ class RequestHandler:
         self._max_req_len = max_req_len
         self._sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._sock.connect(("localhost", port))
+        pass
 
     def getTweetInfo(self, tweet_id: int):
         return self._send({

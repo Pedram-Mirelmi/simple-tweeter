@@ -131,7 +131,7 @@ class App:
         self._user_info[NAME] = input("name: ")
         response = self.req_handler.register(self._user_info)
         if not response[OUTCOME]:
-            print("couldn't register!", response[STATUS])
+            print("couldn't register!", response[MESSAGE])
         else:
             self._user_info = response
             print(f"Successfully registered and logged in{MARK_SIGN}", self._user_info)

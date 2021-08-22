@@ -128,7 +128,7 @@ class SettingsWindow(SettingsWindowUI):
                        QtWidgets.QMessageBox.Information, [QtWidgets.QMessageBox.Ok])
                 self.user_info.update(self.getNewProfileInfo())
             else:
-                popBox(FAILED, response[STATUS], QtWidgets.QMessageBox.Critical,
+                popBox(FAILED, response[MESSAGE], QtWidgets.QMessageBox.Critical,
                        [QtWidgets.QMessageBox.Ok])
         else:
             popBox(FAILED, "Invalid email address", QtWidgets.QMessageBox.Critical,

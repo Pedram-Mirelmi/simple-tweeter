@@ -17,12 +17,13 @@ class Server:
         print(f"listening on port {self.port}")
         while True:
             sock_obj, address_info = self.sock.accept()
+            print(f"connected to a client: IP: {address_info}")
             new_connection = threading.Thread(target=self.__talkToClient,
                                               args=(sock_obj,))
             new_connection.start()
 
     def __talkToClient(self, sock_obj: socket.socket) -> None:
-        # try:
+        try:
             while True:
                 req_dict = self.__get_req(sock_obj)
                 if not req_dict:
@@ -30,8 +31,8 @@ class Server:
                     break
                 res_dict = self.req_handler.handle(req_dict)
                 self.__send_res(sock_obj, res_dict)
-        # except Exception as e:
-        #     print(f'connection crashed! {e}')
+        except Exception as e:
+            print(f'connection crashed! {e}')
             sock_obj.close()
 
     def __get_req(self, sock_obj: socket.socket) -> dict:
