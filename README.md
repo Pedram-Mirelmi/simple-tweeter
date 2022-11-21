@@ -1,17 +1,17 @@
 # simple tweeter
 
 ## client:
-[First Page](./FirstPage.png "first page of the application")
+![First Page](./FirstPage.png "first page of the application")
 The client UI version now has these features:
 * Write new tweet 
 * Like tweets
-[Home Page](./HomePage.png "Home page of the application")
+![Home Page](./HomePage.png "Home page of the application")
 * View comments
 * Leave new comments
 * Like others comments
-[Comment Page](./CommentPage.png "Comment page")
+![Comment Page](./CommentPage.png "Comment page")
 * User profile tab (managing user's own tweets)
-[Profile Page](./ProfilePage.png "Profile page")
+![Profile Page](./ProfilePage.png "Profile page")
 * View user Settings and edit your profile details
 * Settings: to edit user's profile info
 
